@@ -41,14 +41,15 @@ public class Cubic extends ApplicationAdapter {
         player.create();
         Player reference = new Player();
         reference.create();
-        reference.translation.x += 15;
+        reference.transform.translate(15f, 0, 0);
         reference.update();
         players = new ArrayList<Player>();
         players.add(player);
         players.add(reference);
 
-        camera.lookAt(player.translation);
+        camera.lookAt(player.transform.getTranslation(new Vector3()));
         camera.update();
+        player.camera = camera;
 	}
 
 	@Override
@@ -57,7 +58,7 @@ public class Cubic extends ApplicationAdapter {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
         
         player.update();
-        camera.lookAt(player.translation); // This is not working.
+        camera.lookAt(player.transform.getTranslation(new Vector3())); // This is not working.
         
 		batch.begin(camera);
 		batch.render(players, environment);
