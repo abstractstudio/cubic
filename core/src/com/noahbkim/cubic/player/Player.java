@@ -16,47 +16,47 @@ import com.badlogic.gdx.utils.Pool;
 
 public class Player implements RenderableProvider {
 
-	public Vector3 translation;
-	public Vector3 scale;
-	public Quaternion rotation;
+
+	public Vector3 trajectory;
+	public Transform transform; // Not imported
 	public Material material;
-	
 	public Model model;
 	public ModelInstance instance;
+	public PerspectiveCamera camera;
 	
 	public Player() {
-		translation = new Vector3();
-		scale = new Vector3(5, 5, 5);
-		rotation = new Quaternion();
 		material = new Material(ColorAttribute.createDiffuse(Color.WHITE));
-	}
-	
-	public Player(Vector3 transform, Vector3 scale, Quaternion rotation, Material material) {
-		this.translation = transform;
-		this.scale = scale;
-		this.rotation = rotation;
-		this.material = material;
-	}
-	
-	/* Convenience method, should eventually be deleted. */
-	public Player(Vector3 transform, Vector3 scale, Quaternion rotation) {
-		this(transform, scale, rotation, new Material(ColorAttribute.createDiffuse(Color.WHITE)));
+		create();
 	}
 	
 	public void create() {
 		ModelBuilder builder = new ModelBuilder();
 		model = builder.createBox(scale.x, scale.y, scale.z, material, Usage.Position | Usage.Normal);
 		instance = new ModelInstance(model);
+		transform = instance.transform;
+	}
+	
+	public void look() {
+		if (camera == null) return;
+	}
+
+	public void move() {
+		if (camera == null) return;
+		Vector2 joystick = new Vector2();
+		if (Gdx.input.isKeyPressed(Input.Keys.W)) joystick.y += 1;
+		if (Gdx.input.isKeyPressed(Input.Keys.S)) joystick.y -= 1;
+		if (Gdx.input.isKeyPressed(Input.Keys.A)) joystick.x -= 1;
+		if (Gdx.input.isKeyPressed(Input.Keys.D)) joystick.x += 1;
+		joystick = joystick.normalize();
+	}
+	
+	public void update() {
+		look();
+		move();
 	}
 	
 	public void dispose() {
 		model.dispose();
-	}
-	
-	public void update() {
-		instance.transform.setTranslation(translation);
-		//instance.transform.rotate(rotation);
-		//instance.transform.scale(scale.x, scale.y, scale.z);
 	}
 
 	@Override
