@@ -4,7 +4,6 @@ import java.util.ArrayList;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.g3d.Environment;
@@ -33,14 +32,11 @@ public class Cubic extends ApplicationAdapter {
         environment.add(new DirectionalLight().set(0.8f, 0.8f, 0.8f, -1f, -0.8f, -0.2f));
 
         camera = new PerspectiveCamera(67, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-        camera.position.set(new Vector3(20f, 20f, 20f));
         camera.near = 1f;
         camera.far = 300f;
-
+        
         player = new Player();
-        player.create();
         Player reference = new Player();
-        reference.create();
         reference.transform.translate(15f, 0, 0);
         reference.update();
         players = new ArrayList<Player>();
@@ -49,7 +45,6 @@ public class Cubic extends ApplicationAdapter {
 
         camera.lookAt(player.transform.getTranslation(new Vector3()));
         camera.update();
-        player.camera = camera;
 	}
 
 	@Override
