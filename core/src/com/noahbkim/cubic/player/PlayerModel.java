@@ -8,21 +8,42 @@ import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.math.Vector3;
 
+/**
+ * A set of convenience functions for creating on-the-fly player models.
+ * @author Noah Kim
+ */
 public class PlayerModel {
 
+	/** 
+	 * A couple of defaults for model properties. 
+	 * @author Noah Kim
+	 */
 	public static class Defaults {
 		public static Material material = new Material(ColorAttribute.createDiffuse(Color.WHITE));
 		public static Vector3 dimensions = new Vector3(5f, 5f, 5f);
+		public static long attributes = Usage.Position | Usage.Normal;
 	}
 
-	public static Model cube(Vector3 dimensions, Material material) {
+	/**
+	 * Create a custom box model.
+	 * @param dimensions a vector containing the width, height, and length of the box.
+	 * @param material the material mapped to the box.
+	 * @param attributes the model attributes of the box.
+	 * @return a box model with the given specifications.
+	 * @author Noah Kim
+	 */
+	public static Model box(Vector3 dimensions, Material material, long attributes) {
 		ModelBuilder builder = new ModelBuilder();
-		return builder.createBox(5f, dimensions.y, dimensions.z, material, Usage.Position | Usage.Normal);
+		return builder.createBox(dimensions.x, dimensions.y, dimensions.z, material, attributes);
 	}
 	
+	/**
+	 * Create a default cube model. 
+	 * @return a cube model with the default specifications.
+	 * @author Noah Kim
+	 */
 	public static Model cube() {
-		ModelBuilder builder = new ModelBuilder();
-		return builder.createBox(Defaults.dimensions.x, Defaults.dimensions.y, Defaults.dimensions.z, Defaults.material, Usage.Position | Usage.Normal);
+		return box(Defaults.dimensions, Defaults.material, Defaults.attributes);
 	}
 	
 }
