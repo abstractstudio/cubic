@@ -8,9 +8,13 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
+import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
+import com.badlogic.gdx.math.Matrix4;
+import com.badlogic.gdx.math.Vector3;
 import com.noahbkim.cubic.player.PlayerCamera;
+import com.noahbkim.cubic.utility.Models;
 import com.noahbkim.cubic.utility.Updatable;
 import com.noahbkim.cubic.player.Player;
 
@@ -34,6 +38,7 @@ public class Cubic extends ApplicationAdapter {
 	Player player;
 	ArrayList<Player> players;
 	ArrayList<Updatable> updatables;
+	ArrayList<ModelInstance> instances;
 
 	/**
 	 * Create the game.
@@ -42,22 +47,29 @@ public class Cubic extends ApplicationAdapter {
 	@Override
 	public void create() {
 		
-		/** Set up the rendering equipment. */
+		/* Set up the rendering equipment. */
 		batch = new ModelBatch();
         environment = new Environment();
         environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.4f, 0.4f, 0.4f, 1f));
-        environment.add(new DirectionalLight().set(0.8f, 0.8f, 0.8f, -1f, -0.8f, -0.2f));
+        environment.add(new DirectionalLight().set(0.8f, 0.8f, 0.8f, 2f, -1f, 2f));
         camera = new PlayerCamera();
         
-        /** Set up the player. */
+        /* Set up the player. */
         player = new Player();
         player.enableInput = true;
+        player.transform.val[Matrix4.M13] += Models.Defaults.dimensions.y / 2;
+
         camera.target(player);
         
         /* Create another player for reference. */
         Player reference = new Player();
         reference.transform.translate(15f, 0, 0);
         reference.update();
+        reference.transform.val[Matrix4.M13] += Models.Defaults.dimensions.y / 2;
+        
+        /* Create a floor. */
+        ModelInstance floor = new ModelInstance(Models.box(new Vector3(100, 1, 100), Models.Defaults.material2, Models.Defaults.attributes));
+        floor.transform.val[Matrix4.M13] -= 0.5;
         
         /* Create the reference lists. */
         players = new ArrayList<Player>();
@@ -66,6 +78,9 @@ public class Cubic extends ApplicationAdapter {
         updatables = new ArrayList<Updatable>();
         updatables.addAll(players);
         updatables.add(camera);
+        instances = new ArrayList<ModelInstance>();
+        instances.addAll(players);
+        instances.add(floor);
         
         /* Put the cursor away. */
         Gdx.input.setCursorPosition(Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2);
@@ -91,7 +106,7 @@ public class Cubic extends ApplicationAdapter {
 
         /* Render. */
 		batch.begin(camera);
-		batch.render(players, environment);
+		batch.render(instances, environment);
 		batch.end();
 	}
 	

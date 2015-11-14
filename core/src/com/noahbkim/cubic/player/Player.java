@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.g3d.RenderableProvider;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
 import com.noahbkim.cubic.Cubic;
+import com.noahbkim.cubic.utility.Models;
 import com.noahbkim.cubic.utility.Updatable;
 
 /**
@@ -25,7 +26,7 @@ public class Player extends ModelInstance implements RenderableProvider, Updatab
 
 	/** Instantiate a new player. Model is a default cube. */
 	public Player() {
-		this(PlayerModel.cube());
+		this(Models.cube());
 	}
 	
 	/**

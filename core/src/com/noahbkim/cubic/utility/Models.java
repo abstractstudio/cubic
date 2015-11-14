@@ -1,4 +1,4 @@
-package com.noahbkim.cubic.player;
+package com.noahbkim.cubic.utility;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.VertexAttributes.Usage;
@@ -12,7 +12,7 @@ import com.badlogic.gdx.math.Vector3;
  * A set of convenience functions for creating on-the-fly player models.
  * @author Noah Kim
  */
-public class PlayerModel {
+public class Models {
 
 	/** 
 	 * A couple of defaults for model properties. 
@@ -20,6 +20,7 @@ public class PlayerModel {
 	 */
 	public static class Defaults {
 		public static Material material = new Material(ColorAttribute.createDiffuse(Color.WHITE));
+		public static Material material2 = new Material(ColorAttribute.createDiffuse(Color.GRAY));
 		public static Vector3 dimensions = new Vector3(5f, 5f, 5f);
 		public static long attributes = Usage.Position | Usage.Normal;
 	}
