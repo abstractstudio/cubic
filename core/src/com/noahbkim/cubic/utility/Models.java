@@ -23,7 +23,6 @@ public class Models {
 	public static class defaults {
 		public static Material material = new Material(ColorAttribute.createDiffuse(Color.WHITE));
 		public static Material material2 = new Material(ColorAttribute.createDiffuse(Color.GRAY));
-		public static Vector3 dimensions = new Vector3(5f, 5f, 5f);
 		public static long attributes = Usage.Position | Usage.Normal;
 	}
 
@@ -40,15 +39,31 @@ public class Models {
 		ModelBuilder builder = new ModelBuilder();
 		return builder.createBox(dimensions.x, dimensions.y, dimensions.z, material, attributes);
 	}
-	
+
 	/**
-	 * Create a default cube model. 
-	 * @return a cube model with the default specifications.
+	 * Create a custom box model.
+	 * @param dimensions a vector containing the width, height, and length of the box.
+	 * @param material the material mapped to the box.
+	 * @return a box model with the given specifications.
 	 * @author Noah Kim
 	 * @author Arman Siddique
 	 */
-	public static Model cube() {
-		return box(defaults.dimensions, defaults.material, defaults.attributes);
+	public static Model box(Vector3 dimensions, Material material) {
+		ModelBuilder builder = new ModelBuilder();
+		return builder.createBox(dimensions.x, dimensions.y, dimensions.z, material, defaults.attributes);
 	}
+	
+	/**
+	 * Create a custom box model.
+	 * @param dimensions a vector containing the width, height, and length of the box.
+	 * @return a box model with the given specifications.
+	 * @author Noah Kim
+	 * @author Arman Siddique
+	 */
+	public static Model box(Vector3 dimensions) {
+		ModelBuilder builder = new ModelBuilder();
+		return builder.createBox(dimensions.x, dimensions.y, dimensions.z, defaults.material, defaults.attributes);
+	}
+
 	
 }

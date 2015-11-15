@@ -14,7 +14,6 @@ import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.bullet.Bullet;
-import com.badlogic.gdx.physics.bullet.collision.ContactListener;
 import com.badlogic.gdx.physics.bullet.collision.btBoxShape;
 import com.badlogic.gdx.physics.bullet.collision.btCollisionConfiguration;
 import com.badlogic.gdx.physics.bullet.collision.btCollisionDispatcher;
@@ -46,15 +45,15 @@ public class Cubic extends ApplicationAdapter {
 		public static Vector3 gravity = new Vector3(0.0f, -10.0f, 0.0f);
 	}
 	
-	// this doesn't do anything yet (probably will be removed)
-	private class CubicContactListener extends ContactListener {
-		@Override
-		public boolean onContactAdded(int userValue0, int partId0, int index0, int userValue1, int partId1, int index1) {
-			return true;
-		}
+	/** States. */
+	public static enum State {
+		PLAYING, PAUSED
 	}
-	
+		
 	public static Settings settings;
+	
+	/** Game. */
+	public State state;
 	
 	/** Rendering equipment. */
 	private ModelBatch batch;
@@ -73,7 +72,6 @@ public class Cubic extends ApplicationAdapter {
 	private btDbvtBroadphase broadphase;
 	private btConstraintSolver constraintSolver;
 	private btDynamicsWorld dynamicsWorld;
-	private CubicContactListener contactListener;
 	
 	private btCollisionShape groundShape;
 	private btRigidBody.btRigidBodyConstructionInfo groundRigidBodyInfo;
@@ -102,7 +100,7 @@ public class Cubic extends ApplicationAdapter {
         /* Set up the player. */
         player = new Player();
         player.enableInput = true;
-        player.transform.val[Matrix4.M13] += Models.defaults.dimensions.y / 2;
+        player.transform.val[Matrix4.M13] += Player.dimensions.y / 2;
         
         /* Set up the camera. */
         camera.target(player);
@@ -111,7 +109,7 @@ public class Cubic extends ApplicationAdapter {
         Player reference = new Player();
         reference.transform.translate(15f, 0, 0);
         reference.update();
-        reference.transform.val[Matrix4.M13] += Models.defaults.dimensions.y / 2;
+        reference.transform.val[Matrix4.M13] += Player.dimensions.y / 2;
         reference.rigidBody.setWorldTransform(reference.transform);
         
         /* Create a floor. */
@@ -140,7 +138,6 @@ public class Cubic extends ApplicationAdapter {
         constraintSolver = new btSequentialImpulseConstraintSolver();
         dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher, broadphase, constraintSolver, collisionConfig);
         dynamicsWorld.setGravity(defaults.gravity);
-        //contactListener = new CubicContactListener();
         
         /* Add the ground to the world. */
         groundShape = new btBoxShape(new Vector3(50, 0.5f, 50));
@@ -155,6 +152,8 @@ public class Cubic extends ApplicationAdapter {
         	p.rigidBody.setCollisionFlags(p.rigidBody.getCollisionFlags() | btCollisionObject.CollisionFlags.CF_CUSTOM_MATERIAL_CALLBACK);
         	dynamicsWorld.addRigidBody(p.rigidBody);
         }
+        
+        state = State.PLAYING;
 	}
 
 	/**
@@ -177,9 +176,11 @@ public class Cubic extends ApplicationAdapter {
         }
         
         /* Check for game input. */
-        if (Gdx.input.isKeyPressed(Input.Keys.ESCAPE)) {
-        	Gdx.input.setCursorCatched(false);
+        if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
+        	if (state == State.PLAYING) pause();
+        	else if (state == State.PAUSED) resume();
         }
+
 
         /* Render. */
 		batch.begin(camera);
@@ -217,17 +218,22 @@ public class Cubic extends ApplicationAdapter {
 	
 	@Override
 	public void resume() {
-		
+		System.out.println("resume");
+        Gdx.input.setCursorPosition(Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2);
+        Gdx.input.setCursorCatched(true);
+        state = State.PLAYING;
 	}
 	
 	@Override
 	public void pause() {
-		
+		System.out.println("pause");
+        Gdx.input.setCursorCatched(false);
+		state = State.PAUSED;
 	}
 	
 	@Override
 	public void resize(int width, int height) {
-
+		Gdx.gl.glViewport(0, 0, width, height);
 	}
 
 }

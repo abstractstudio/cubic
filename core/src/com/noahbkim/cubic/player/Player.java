@@ -2,7 +2,6 @@ package com.noahbkim.cubic.player;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
-import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.RenderableProvider;
@@ -21,12 +20,18 @@ import com.noahbkim.cubic.utility.Updatable;
  * @author Noah Kim
  */
 public class Player extends ModelInstance implements RenderableProvider, Updatable {
-	/** Model settings. */
-	public static final float LENGTH = 1.0f;
-	public static final float WIDTH = 1.0f;
-	public static final float HEIGHT = 1.0f;
 	
-	public static final float MASS = 1.0f;
+	/** Model properties. */
+	public static Vector3 dimensions = new Vector3(1f, 1f, 1f);
+	public static float azimuth;
+	public static final float mass = 2.0f;
+	
+	/** Jump state. */
+	public enum State {
+		GROUNDED, JUMPING
+	}
+	
+	public State state = State.GROUNDED;
 	
 	/** Player settings. */
 	public boolean enableInput;
@@ -42,7 +47,7 @@ public class Player extends ModelInstance implements RenderableProvider, Updatab
 
 	/** Instantiate a new player. Model is a default cube. */
 	public Player() {
-		this(Models.cube());
+		this(Models.box(dimensions));
 	}
 	
 	/**
@@ -55,11 +60,12 @@ public class Player extends ModelInstance implements RenderableProvider, Updatab
 		super(model);
 		this.model = model;
 		
-		this.collisionShape = new btBoxShape(Models.defaults.dimensions.scl(0.5f));
-		this.collisionShape.calculateLocalInertia(MASS, localInertia);
-		this.constructionInfo = new btRigidBody.btRigidBodyConstructionInfo(MASS, null, collisionShape, localInertia);
-		this.rigidBody = new btRigidBody(constructionInfo);
-		this.rigidBody.activate(true);
+		collisionShape = new btBoxShape(dimensions.scl(0.5f));
+		collisionShape.calculateLocalInertia(mass, localInertia);
+		constructionInfo = new btRigidBody.btRigidBodyConstructionInfo(mass, null, collisionShape, localInertia);
+		rigidBody = new btRigidBody(constructionInfo);
+		rigidBody.activate(true);
+		rigidBody.setFriction(0.9f);
 	}
 
 	/**
@@ -68,15 +74,24 @@ public class Player extends ModelInstance implements RenderableProvider, Updatab
 	 * @author Arman Siddique
 	 */
 	public void input() {
-		Vector3 joystick = new Vector3();
-		if (Gdx.input.isKeyPressed(Input.Keys.W)) joystick.x += 1;
-		if (Gdx.input.isKeyPressed(Input.Keys.S)) joystick.x -= 1;
-		if (Gdx.input.isKeyPressed(Input.Keys.A)) joystick.z -= 1;
-		if (Gdx.input.isKeyPressed(Input.Keys.D)) joystick.z += 1;
-		//transform.translate(joystick.nor());
-		//transform.rotate(Vector3.Y, -Gdx.input.getDeltaX() * Cubic.defaults.mouseSensitivity);
-		if (rigidBody.getLinearVelocity().len2() < 500)
-			rigidBody.applyCentralImpulse(joystick);
+		Vector3 objectiveJoystick = new Vector3();
+		if (Gdx.input.isKeyPressed(Input.Keys.W)) objectiveJoystick.x += 1;
+		if (Gdx.input.isKeyPressed(Input.Keys.S)) objectiveJoystick.x -= 1;
+		if (Gdx.input.isKeyPressed(Input.Keys.A)) objectiveJoystick.z -= 1;
+		if (Gdx.input.isKeyPressed(Input.Keys.D)) objectiveJoystick.z += 1;
+		azimuth += -Gdx.input.getDeltaX() * Cubic.defaults.mouseSensitivity;
+		objectiveJoystick.rotate(azimuth, 0, 1, 0);
+			
+		Vector3 subjectiveJoystick = new Vector3();
+		if (Gdx.input.isKeyPressed(Input.Keys.SPACE) && state == State.GROUNDED) {
+			subjectiveJoystick.y += 5;
+			//state = State.JUMPING;
+		}
+		
+		
+		
+		if (rigidBody.getLinearVelocity().len2() < 500) rigidBody.applyCentralImpulse(objectiveJoystick.add(subjectiveJoystick));
+
 	}
 	
 	/**
@@ -85,8 +100,8 @@ public class Player extends ModelInstance implements RenderableProvider, Updatab
 	 * @author Arman Siddique
 	 */
 	public void update() {
-		if (enableInput) input();
 		transform.set(rigidBody.getCenterOfMassTransform());
+		if (enableInput) input();
 	}
 	
 	/**

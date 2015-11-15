@@ -19,7 +19,7 @@ public class PlayerCamera extends PerspectiveCamera implements Updatable {
 		static float fieldOfView = 67f;
 		static float startingAltitude = -50;
 		static float startingAzimuth = 0;
-		static float startingRadius = 20;
+		static float startingRadius = 10;
 	}
 	
 	/** Player and relative location. */
