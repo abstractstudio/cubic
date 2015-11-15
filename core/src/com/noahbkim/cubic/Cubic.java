@@ -53,7 +53,9 @@ public class Cubic extends ApplicationAdapter {
 			return true;
 		}
 	}
-
+	
+	public static Settings settings;
+	
 	/** Rendering equipment. */
 	private ModelBatch batch;
 	private Environment environment;
@@ -84,9 +86,16 @@ public class Cubic extends ApplicationAdapter {
 	 */
 	@Override
 	public void create() {
+<<<<<<< HEAD
 		/* Initialize Bullet. */
         Bullet.init();
         
+=======
+		
+		/* Load the settings. */
+		settings = new Settings("settings.txt");
+		
+>>>>>>> origin/master
 		/* Set up the rendering equipment. */
 		batch = new ModelBatch();
         environment = new Environment();
@@ -98,8 +107,12 @@ public class Cubic extends ApplicationAdapter {
         player = new Player();
         player.enableInput = true;
         player.transform.val[Matrix4.M13] += Models.defaults.dimensions.y / 2;
+<<<<<<< HEAD
         
         /* Set up the camera. */
+=======
+
+>>>>>>> origin/master
         camera.target(player);
         
         /* Create another player for reference. */
@@ -107,7 +120,10 @@ public class Cubic extends ApplicationAdapter {
         reference.transform.translate(15f, 0, 0);
         reference.update();
         reference.transform.val[Matrix4.M13] += Models.defaults.dimensions.y / 2;
+<<<<<<< HEAD
         reference.rigidBody.setWorldTransform(reference.transform);
+=======
+>>>>>>> origin/master
         
         /* Create a floor. */
         ModelInstance floor = new ModelInstance(Models.box(new Vector3(100, 1, 100), Models.defaults.material2, Models.defaults.attributes));
