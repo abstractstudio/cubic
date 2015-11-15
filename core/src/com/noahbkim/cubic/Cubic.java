@@ -25,10 +25,12 @@ import com.noahbkim.cubic.player.Player;
 public class Cubic extends ApplicationAdapter {
 	
 	/** Defaults. */
-	public static class Defaults {
+	public static class defaults {
 		public static float mouseSensitivity = 0.1f;
 	}
-
+	
+	public static Settings settings;
+	
 	/** Rendering equipment. */
 	ModelBatch batch;
 	Environment environment;
@@ -47,6 +49,9 @@ public class Cubic extends ApplicationAdapter {
 	@Override
 	public void create() {
 		
+		/* Load the settings. */
+		settings = new Settings("settings.txt");
+		
 		/* Set up the rendering equipment. */
 		batch = new ModelBatch();
         environment = new Environment();
@@ -57,7 +62,7 @@ public class Cubic extends ApplicationAdapter {
         /* Set up the player. */
         player = new Player();
         player.enableInput = true;
-        player.transform.val[Matrix4.M13] += Models.Defaults.dimensions.y / 2;
+        player.transform.val[Matrix4.M13] += Models.defaults.dimensions.y / 2;
 
         camera.target(player);
         
@@ -65,10 +70,10 @@ public class Cubic extends ApplicationAdapter {
         Player reference = new Player();
         reference.transform.translate(15f, 0, 0);
         reference.update();
-        reference.transform.val[Matrix4.M13] += Models.Defaults.dimensions.y / 2;
+        reference.transform.val[Matrix4.M13] += Models.defaults.dimensions.y / 2;
         
         /* Create a floor. */
-        ModelInstance floor = new ModelInstance(Models.box(new Vector3(100, 1, 100), Models.Defaults.material2, Models.Defaults.attributes));
+        ModelInstance floor = new ModelInstance(Models.box(new Vector3(100, 1, 100), Models.defaults.material2, Models.defaults.attributes));
         floor.transform.val[Matrix4.M13] -= 0.5;
         
         /* Create the reference lists. */

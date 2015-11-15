@@ -50,7 +50,7 @@ public class Player extends ModelInstance implements RenderableProvider, Updatab
 		if (Gdx.input.isKeyPressed(Input.Keys.A)) joystick.z -= 1;
 		if (Gdx.input.isKeyPressed(Input.Keys.D)) joystick.z += 1;
 		transform.translate(joystick.nor());
-		transform.rotate(Vector3.Y, -Gdx.input.getDeltaX() * Cubic.Defaults.mouseSensitivity);
+		transform.rotate(Vector3.Y, -Gdx.input.getDeltaX() * Cubic.defaults.mouseSensitivity);
 	}
 	
 	/**

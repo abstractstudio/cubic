@@ -18,7 +18,7 @@ public class Models {
 	 * A couple of defaults for model properties. 
 	 * @author Noah Kim
 	 */
-	public static class Defaults {
+	public static class defaults {
 		public static Material material = new Material(ColorAttribute.createDiffuse(Color.WHITE));
 		public static Material material2 = new Material(ColorAttribute.createDiffuse(Color.GRAY));
 		public static Vector3 dimensions = new Vector3(5f, 5f, 5f);
@@ -44,7 +44,7 @@ public class Models {
 	 * @author Noah Kim
 	 */
 	public static Model cube() {
-		return box(Defaults.dimensions, Defaults.material, Defaults.attributes);
+		return box(defaults.dimensions, defaults.material, defaults.attributes);
 	}
 	
 }

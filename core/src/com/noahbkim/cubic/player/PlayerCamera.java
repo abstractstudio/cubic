@@ -75,8 +75,8 @@ public class PlayerCamera extends PerspectiveCamera implements Updatable {
 	 * @author Noah Kim
 	 */
 	public void input() {
-		azimuth += Gdx.input.getDeltaX() * Cubic.Defaults.mouseSensitivity;
-		float dy = Gdx.input.getDeltaY() * Cubic.Defaults.mouseSensitivity;
+		azimuth += Gdx.input.getDeltaX() * Cubic.defaults.mouseSensitivity;
+		float dy = Gdx.input.getDeltaY() * Cubic.defaults.mouseSensitivity;
 		if (altitude + dy > -1) altitude = -1;
 		else if (altitude + dy < -90) altitude = -90;
 		else altitude += dy;
