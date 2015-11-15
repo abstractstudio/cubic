@@ -11,14 +11,16 @@ import com.badlogic.gdx.math.Vector3;
 /**
  * A set of convenience functions for creating on-the-fly player models.
  * @author Noah Kim
+ * @author Arman Siddique
  */
 public class Models {
 
 	/** 
 	 * A couple of defaults for model properties. 
 	 * @author Noah Kim
+	 * @author Arman Siddique
 	 */
-	public static class Defaults {
+	public static class defaults {
 		public static Material material = new Material(ColorAttribute.createDiffuse(Color.WHITE));
 		public static Material material2 = new Material(ColorAttribute.createDiffuse(Color.GRAY));
 		public static Vector3 dimensions = new Vector3(5f, 5f, 5f);
@@ -32,6 +34,7 @@ public class Models {
 	 * @param attributes the model attributes of the box.
 	 * @return a box model with the given specifications.
 	 * @author Noah Kim
+	 * @author Arman Siddique
 	 */
 	public static Model box(Vector3 dimensions, Material material, long attributes) {
 		ModelBuilder builder = new ModelBuilder();
@@ -42,9 +45,10 @@ public class Models {
 	 * Create a default cube model. 
 	 * @return a cube model with the default specifications.
 	 * @author Noah Kim
+	 * @author Arman Siddique
 	 */
 	public static Model cube() {
-		return box(Defaults.dimensions, Defaults.material, Defaults.attributes);
+		return box(defaults.dimensions, defaults.material, defaults.attributes);
 	}
 	
 }

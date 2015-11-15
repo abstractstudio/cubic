@@ -10,6 +10,7 @@ import com.noahbkim.cubic.utility.Updatable;
 /**
  * Specialized camera that maintains an orbiting 3rd person view of the target model.
  * @author Noah Kim
+ * @author Arman Siddique
  */
 public class PlayerCamera extends PerspectiveCamera implements Updatable {
 
@@ -30,6 +31,7 @@ public class PlayerCamera extends PerspectiveCamera implements Updatable {
 	/** 
 	 * Initialize a new player camera with default settings.
 	 * @author Noah Kim
+	 * @author Arman Siddique
 	 */
 	public PlayerCamera() {
         super(Defaults.fieldOfView, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
@@ -38,6 +40,7 @@ public class PlayerCamera extends PerspectiveCamera implements Updatable {
 	/** 
 	 * Initialize a player camera with control over the perspective camera instantiation.
 	 * @author Noah Kim
+	 * @author Arman Siddique
 	 */
 	public PlayerCamera(float fieldOfView, int width, int height) {
 		super(fieldOfView, width, height);
@@ -46,6 +49,7 @@ public class PlayerCamera extends PerspectiveCamera implements Updatable {
 	/**
 	 * Update the player camera. 
 	 * @author Noah Kim
+	 * @author Arman Siddique
 	 */
 	public void update() {
 				
@@ -73,10 +77,11 @@ public class PlayerCamera extends PerspectiveCamera implements Updatable {
 	/**
 	 * Get user input.
 	 * @author Noah Kim
+	 * @author Arman Siddique
 	 */
 	public void input() {
-		azimuth += Gdx.input.getDeltaX() * Cubic.Defaults.mouseSensitivity;
-		float dy = Gdx.input.getDeltaY() * Cubic.Defaults.mouseSensitivity;
+		azimuth += Gdx.input.getDeltaX() * Cubic.defaults.mouseSensitivity;
+		float dy = Gdx.input.getDeltaY() * Cubic.defaults.mouseSensitivity;
 		if (altitude + dy > -1) altitude = -1;
 		else if (altitude + dy < -90) altitude = -90;
 		else altitude += dy;
@@ -86,6 +91,7 @@ public class PlayerCamera extends PerspectiveCamera implements Updatable {
 	 * Target a specific player.
 	 * @param player the player to bind the camera to.
 	 * @author Noah Kim
+	 * @author Arman Siddique
 	 */
 	public void target(Player player) {
 		this.player = player;
