@@ -143,7 +143,7 @@ public class Cubic extends ApplicationAdapter {
         //contactListener = new CubicContactListener();
         
         /* Add the ground to the world. */
-        groundShape = new btBoxShape(new Vector3(100, 1, 100));
+        groundShape = new btBoxShape(new Vector3(50, 0.5f, 50));
         groundRigidBodyInfo = new btRigidBody.btRigidBodyConstructionInfo(0.0f, null, groundShape, Vector3.Zero);
         groundRigidBody = new btRigidBody(groundRigidBodyInfo);
         groundRigidBody.setCollisionShape(groundShape);

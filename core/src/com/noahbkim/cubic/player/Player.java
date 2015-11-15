@@ -55,7 +55,7 @@ public class Player extends ModelInstance implements RenderableProvider, Updatab
 		super(model);
 		this.model = model;
 		
-		this.collisionShape = new btBoxShape(Models.defaults.dimensions);
+		this.collisionShape = new btBoxShape(Models.defaults.dimensions.scl(0.5f));
 		this.collisionShape.calculateLocalInertia(MASS, localInertia);
 		this.constructionInfo = new btRigidBody.btRigidBodyConstructionInfo(MASS, null, collisionShape, localInertia);
 		this.rigidBody = new btRigidBody(constructionInfo);
