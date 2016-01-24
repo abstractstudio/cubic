@@ -27,6 +27,7 @@ import com.badlogic.gdx.physics.bullet.dynamics.btDiscreteDynamicsWorld;
 import com.badlogic.gdx.physics.bullet.dynamics.btDynamicsWorld;
 import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody;
 import com.badlogic.gdx.physics.bullet.dynamics.btSequentialImpulseConstraintSolver;
+import com.noahbkim.cubic.physics.PhysicsWorld;
 import com.noahbkim.cubic.player.Player;
 import com.noahbkim.cubic.player.PlayerCamera;
 import com.noahbkim.cubic.utility.Models;
@@ -66,13 +67,10 @@ public class Cubic extends ApplicationAdapter {
 	private ArrayList<Updatable> updatables;
 	private ArrayList<ModelInstance> instances;
 	
-	/** Physics objects. */
-	private btCollisionConfiguration collisionConfig;
-	private btDispatcher dispatcher;
-	private btDbvtBroadphase broadphase;
-	private btConstraintSolver constraintSolver;
-	private btDynamicsWorld dynamicsWorld;
+	/** Physics World. */
+	private PhysicsWorld physicsWorld;
 	
+	/** Physics objects for the ground. */
 	private btCollisionShape groundShape;
 	private btRigidBody.btRigidBodyConstructionInfo groundRigidBodyInfo;
 	private btRigidBody groundRigidBody;
@@ -132,12 +130,7 @@ public class Cubic extends ApplicationAdapter {
         Gdx.input.setCursorCatched(true);
         
         /* Initialize physics. */
-        collisionConfig = new btDefaultCollisionConfiguration();
-        dispatcher = new btCollisionDispatcher(collisionConfig);
-        broadphase = new btDbvtBroadphase();
-        constraintSolver = new btSequentialImpulseConstraintSolver();
-        dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher, broadphase, constraintSolver, collisionConfig);
-        dynamicsWorld.setGravity(defaults.gravity);
+        physicsWorld = new PhysicsWorld(5, 1.0f/60.0f);
         
         /* Add the ground to the world. */
         groundShape = new btBoxShape(new Vector3(50, 0.5f, 50));
@@ -145,12 +138,12 @@ public class Cubic extends ApplicationAdapter {
         groundRigidBody = new btRigidBody(groundRigidBodyInfo);
         groundRigidBody.setCollisionShape(groundShape);
         groundRigidBody.setWorldTransform(floor.transform);
+        physicsWorld.addRigidBody(groundRigidBody);
         
         /* Add the players to the world. */
-        dynamicsWorld.addRigidBody(groundRigidBody);
         for (Player p : players) {
         	p.rigidBody.setCollisionFlags(p.rigidBody.getCollisionFlags() | btCollisionObject.CollisionFlags.CF_CUSTOM_MATERIAL_CALLBACK);
-        	dynamicsWorld.addRigidBody(p.rigidBody);
+        	physicsWorld.addRigidBody(p.rigidBody);
         }
         
         state = State.PLAYING;
@@ -168,7 +161,7 @@ public class Cubic extends ApplicationAdapter {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
         
         /* Update physics. */
-        dynamicsWorld.stepSimulation(Gdx.graphics.getDeltaTime(), 5, 1.0f/60.0f);
+        physicsWorld.update();
         
         /* Update everybody. */
         for (Updatable u : updatables) {
@@ -199,18 +192,13 @@ public class Cubic extends ApplicationAdapter {
 		for (Player player : players) player.dispose();
 		instances.clear();
 		
-		/* Dispose of physics bodies. */
+		/* Dispose of ground physics body. */
 		groundShape.dispose();
 		groundRigidBodyInfo.dispose();
 		groundRigidBody.dispose();
 		
-		/* Dispose of physics world stuff. */
-		dynamicsWorld.dispose();
-		constraintSolver.dispose();
-		broadphase.dispose();
-		dispatcher.dispose();
-		collisionConfig.dispose();
-		//contactListener.dispose();
+		/* Dispose of the physics world. */
+		physicsWorld.dispose();
 		
 		/* Dispose of game data. */
 		batch.dispose();

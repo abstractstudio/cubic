@@ -99,6 +99,7 @@ public class Player extends ModelInstance implements RenderableProvider, Updatab
 	 * @author Noah Kim
 	 * @author Arman Siddique
 	 */
+	@Override
 	public void update() {
 		transform.set(rigidBody.getCenterOfMassTransform());
 		if (enableInput) input();
