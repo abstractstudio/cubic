@@ -12,6 +12,7 @@ import com.badlogic.gdx.physics.bullet.dynamics.btDiscreteDynamicsWorld;
 import com.badlogic.gdx.physics.bullet.dynamics.btDynamicsWorld;
 import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody;
 import com.badlogic.gdx.physics.bullet.dynamics.btSequentialImpulseConstraintSolver;
+import com.badlogic.gdx.utils.Disposable;
 import com.noahbkim.cubic.Cubic.defaults;
 import com.noahbkim.cubic.utility.Updatable;
 
@@ -21,7 +22,7 @@ import com.noahbkim.cubic.utility.Updatable;
  * @author Noah Kim
  * @author Arman Siddique
  */
-public class PhysicsWorld implements Updatable {
+public class PhysicsWorld implements Updatable, Disposable {
 	/** Physics world variables. */
 	private btCollisionConfiguration collisionConfig;
 	private btDispatcher dispatcher;
@@ -72,6 +73,7 @@ public class PhysicsWorld implements Updatable {
 	 * @author Noah Kim
 	 * @author Arman Siddique
 	 */
+	@Override
 	public void dispose() {
 		dynamicsWorld.dispose();
 		constraintSolver.dispose();

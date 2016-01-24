@@ -10,6 +10,7 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.bullet.collision.btBoxShape;
 import com.badlogic.gdx.physics.bullet.collision.btCollisionShape;
 import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody;
+import com.badlogic.gdx.utils.Disposable;
 import com.noahbkim.cubic.Cubic;
 import com.noahbkim.cubic.utility.Models;
 import com.noahbkim.cubic.utility.Updatable;
@@ -19,7 +20,7 @@ import com.noahbkim.cubic.utility.Updatable;
  * This class handles movement but is separated from the camera.
  * @author Noah Kim
  */
-public class Player extends ModelInstance implements RenderableProvider, Updatable {
+public class Player extends ModelInstance implements RenderableProvider, Updatable, Disposable {
 	
 	/** Model properties. */
 	public static Vector3 dimensions = new Vector3(1f, 1f, 1f);
@@ -109,6 +110,7 @@ public class Player extends ModelInstance implements RenderableProvider, Updatab
 	 * Dispose of the player. 
 	 * @author Noah Kim
 	 */
+	@Override
 	public void dispose() {
 		collisionShape.dispose();
 		constructionInfo.dispose();
