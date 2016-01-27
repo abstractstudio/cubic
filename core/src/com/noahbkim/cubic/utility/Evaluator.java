@@ -3,12 +3,12 @@ package com.noahbkim.cubic.utility;
 public class Evaluator {
 
 	public static final String BYTE = "byte";
-	public static final String SHORT = "byte";
-	public static final String INT = "byte";
-	public static final String LONG = "byte";
-	public static final String DOUBLE = "byte";
-	public static final String FLOAT = "byte";
-	public static final String BOOLEAN = "byte";
+	public static final String SHORT = "short";
+	public static final String INT = "int";
+	public static final String LONG = "long";
+	public static final String DOUBLE = "double";
+	public static final String FLOAT = "float";
+	public static final String BOOLEAN = "boolean";
 	
 	public static final Object evaluate(String value, String type) {
 		if (type == BYTE) return Byte.parseByte(value);

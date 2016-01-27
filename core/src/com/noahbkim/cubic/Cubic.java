@@ -97,7 +97,6 @@ public class Cubic extends ApplicationAdapter {
         /* Create another player for reference. */
         Player reference = new Player();
         reference.transform.translate(15f, 0, 0);
-        reference.update();
         reference.transform.val[Matrix4.M13] += Player.dimensions.y / 2;
         reference.rigidBody.setWorldTransform(reference.transform);
         
