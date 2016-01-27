@@ -77,7 +77,7 @@ public class Cubic extends ApplicationAdapter {
         Bullet.init();
 		
 		/* Load the settings. */
-		settings = new Settings("settings.txt");
+		settings = new Settings("cubic.settings");
 		
 		/* Set up the rendering equipment. */
 		batch = new ModelBatch();
@@ -89,10 +89,11 @@ public class Cubic extends ApplicationAdapter {
         /* Set up the player. */
         player = new Player();
         player.enableInput = true;
+        player.enableRotation = true;
         player.transform.val[Matrix4.M13] += Player.dimensions.y / 2;
         
         /* Set up the camera. */
-        camera.target(player);
+        camera.setTarget(player);
         
         /* Create another player for reference. */
         Player reference = new Player();
