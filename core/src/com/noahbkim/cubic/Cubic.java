@@ -23,6 +23,7 @@ import com.noahbkim.cubic.player.Player;
 import com.noahbkim.cubic.player.PlayerCamera;
 import com.noahbkim.cubic.utility.Models;
 import com.noahbkim.cubic.utility.Updatable;
+import com.noahbkim.cubic.network.*;
 
 /**
  * Main game class.
@@ -73,6 +74,9 @@ public class Cubic extends ApplicationAdapter {
 	 */
 	@Override
 	public void create() {
+		
+		testNetwork();
+		
 		/* Initialize Bullet. */
         Bullet.init();
 		
@@ -214,6 +218,13 @@ public class Cubic extends ApplicationAdapter {
 	@Override
 	public void resize(int width, int height) {
 		Gdx.gl.glViewport(0, 0, width, height);
+	}
+	
+	public void testNetwork() {
+		int port = 5007;
+		Server s = new Server(port);
+		s.start();
+		Client c = new Client("192.168.1.199", port);
 	}
 
 }
