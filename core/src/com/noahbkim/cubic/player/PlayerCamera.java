@@ -3,6 +3,7 @@ package com.noahbkim.cubic.player;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
 import com.noahbkim.cubic.Cubic;
 import com.noahbkim.cubic.utility.Updatable;
@@ -16,17 +17,18 @@ public class PlayerCamera extends PerspectiveCamera implements Updatable {
 
 	/** A set of defaults for the player camera. */
 	public static class Defaults {
-		static float fieldOfView = 67f;
-		static float startingAltitude = -50;
+		static float fieldOfView = 67.0f;
+		static float startingAltitude = -50.0f;
 		static float startingAzimuth = 0;
-		static float startingRadius = 10;
+		static float startingRadius = 5;
 	}
 	
 	/** Player and relative location. */
-	public Player player;
-	public float azimuth = Defaults.startingAzimuth;
-	public float altitude = Defaults.startingAltitude;
-	public float radius = Defaults.startingRadius;
+	private Player player;
+//	public float azimuth = Defaults.startingAzimuth;
+//	public float altitude = Defaults.startingAltitude;
+	private Quaternion rotation; 
+	private float radius = Defaults.startingRadius;
 	
 	/** 
 	 * Initialize a new player camera with default settings.
@@ -34,7 +36,7 @@ public class PlayerCamera extends PerspectiveCamera implements Updatable {
 	 * @author Arman Siddique
 	 */
 	public PlayerCamera() {
-        super(Defaults.fieldOfView, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        this(Defaults.fieldOfView, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
     }
 	
 	/** 
@@ -44,6 +46,7 @@ public class PlayerCamera extends PerspectiveCamera implements Updatable {
 	 */
 	public PlayerCamera(float fieldOfView, int width, int height) {
 		super(fieldOfView, width, height);
+		rotation = (new Quaternion(Vector3.X, Defaults.startingAltitude)).mulLeft(new Quaternion(Vector3.Y, Defaults.startingAzimuth));
 	}
 	
 	/**
@@ -51,8 +54,8 @@ public class PlayerCamera extends PerspectiveCamera implements Updatable {
 	 * @author Noah Kim
 	 * @author Arman Siddique
 	 */
-	public void update() {
-				
+	@Override
+	public void update() {	
 		/* Exit if there is no targeted player. */
 		if (player != null) {
 			
@@ -62,12 +65,15 @@ public class PlayerCamera extends PerspectiveCamera implements Updatable {
 			/* Move the camera. */
 			Vector3 origin = player.getTranslation();
 			Vector3 translation = new Vector3();
-			translation.x = (float)(radius * MathUtils.sinDeg(altitude) * MathUtils.cosDeg(azimuth)) + origin.x;
-			translation.y = (float)(radius * MathUtils.cosDeg(altitude)) + origin.y;
-			translation.z = (float)(radius * MathUtils.sinDeg(altitude) * MathUtils.sinDeg(azimuth)) + origin.z;
+			translation.x = (float)(radius * MathUtils.sinDeg(rotation.getPitch()) * MathUtils.cosDeg(rotation.getYaw())) + origin.x;
+			translation.y = (float)(radius * MathUtils.cosDeg(rotation.getPitch())) + origin.y;
+			translation.z = (float)(radius * MathUtils.sinDeg(rotation.getPitch()) * MathUtils.sinDeg(rotation.getYaw())) + origin.z;
 			position.set(translation);
+			rotate(rotation);
 			up.set(Vector3.Y);
 			lookAt(origin);
+			
+			
 		}
 
 		/* Update the perspective camera. */
@@ -75,26 +81,41 @@ public class PlayerCamera extends PerspectiveCamera implements Updatable {
 	}
 	
 	/**
-	 * Get user input.
+	 * Process the mouse input.
 	 * @author Noah Kim
 	 * @author Arman Siddique
 	 */
 	public void input() {
-		azimuth += Gdx.input.getDeltaX() * Cubic.defaults.mouseSensitivity;
-		float dy = Gdx.input.getDeltaY() * Cubic.defaults.mouseSensitivity;
-		if (altitude + dy > -1) altitude = -1;
-		else if (altitude + dy < -90) altitude = -90;
-		else altitude += dy;
+		float rotX = Gdx.input.getDeltaX() * Cubic.defaults.mouseSensitivity;
+		float rotY = Gdx.input.getDeltaY() * Cubic.defaults.mouseSensitivity;
+		if (rotation.getPitch() + rotY < -1.0f && rotation.getPitch() + rotY > -89.0f)
+			rotation.mul(new Quaternion(Vector3.X, rotY));
+		rotation.mulLeft(new Quaternion(Vector3.Y, rotX));
+		
+		//System.out.println(rotX + " " + rotY + " " + rotation.getYaw() + " " + rotation.getPitch() + " " + rotation.getRoll());
 	}
 	
 	/**
-	 * Target a specific player.
+	 * Gets the player that this camera is targeting.
+	 * @return the current target.
+	 * @author Noah Kim
+	 * @author Arman Siddique
+	 */
+	public Player getTarget() {
+		return player;
+	}
+	
+	/**
+	 * Makes this camera target a specific player.
 	 * @param player the player to bind the camera to.
 	 * @author Noah Kim
 	 * @author Arman Siddique
 	 */
-	public void target(Player player) {
+	public void setTarget(Player player) {
 		this.player = player;
 	}
 	
+	public Quaternion getRotation() {
+		return rotation;
+	}
 }

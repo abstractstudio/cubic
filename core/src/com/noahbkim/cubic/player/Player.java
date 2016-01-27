@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.RenderableProvider;
 import com.badlogic.gdx.math.Matrix4;
+import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.bullet.collision.btBoxShape;
 import com.badlogic.gdx.physics.bullet.collision.btCollisionShape;
@@ -19,6 +20,7 @@ import com.noahbkim.cubic.utility.Updatable;
  * General player class based off of a model instance.
  * This class handles movement but is separated from the camera.
  * @author Noah Kim
+ * @author Arman Siddique
  */
 public class Player extends ModelInstance implements RenderableProvider, Updatable, Disposable {
 	
@@ -36,6 +38,7 @@ public class Player extends ModelInstance implements RenderableProvider, Updatab
 	
 	/** Player settings. */
 	public boolean enableInput;
+	public boolean enableRotation;
 	
 	/** Base player model. */
 	public Model model;
@@ -45,7 +48,8 @@ public class Player extends ModelInstance implements RenderableProvider, Updatab
 	public btRigidBody rigidBody;
 	public btRigidBody.btRigidBodyConstructionInfo constructionInfo;
 	private Vector3 localInertia = new Vector3();
-
+	private PlayerMotionState motionState;
+	
 	/** Instantiate a new player. Model is a default cube. */
 	public Player() {
 		this(Models.box(dimensions));
@@ -60,10 +64,11 @@ public class Player extends ModelInstance implements RenderableProvider, Updatab
 	public Player(Model model) {
 		super(model);
 		this.model = model;
+		motionState = new PlayerMotionState(this);
 		
 		collisionShape = new btBoxShape(dimensions.scl(0.5f));
 		collisionShape.calculateLocalInertia(mass, localInertia);
-		constructionInfo = new btRigidBody.btRigidBodyConstructionInfo(mass, null, collisionShape, localInertia);
+		constructionInfo = new btRigidBody.btRigidBodyConstructionInfo(mass, motionState, collisionShape, localInertia);
 		rigidBody = new btRigidBody(constructionInfo);
 		rigidBody.activate(true);
 		rigidBody.setFriction(0.9f);
@@ -75,13 +80,17 @@ public class Player extends ModelInstance implements RenderableProvider, Updatab
 	 * @author Arman Siddique
 	 */
 	public void input() {
+		// Rotation
+		if (enableRotation) {
+			float rotX = Gdx.input.getDeltaX() * Cubic.defaults.mouseSensitivity;
+			transform.rotate(new Quaternion(Vector3.Y, -rotX));
+		}
+		
 		Vector3 objectiveJoystick = new Vector3();
 		if (Gdx.input.isKeyPressed(Input.Keys.W)) objectiveJoystick.x += 1;
 		if (Gdx.input.isKeyPressed(Input.Keys.S)) objectiveJoystick.x -= 1;
 		if (Gdx.input.isKeyPressed(Input.Keys.A)) objectiveJoystick.z -= 1;
 		if (Gdx.input.isKeyPressed(Input.Keys.D)) objectiveJoystick.z += 1;
-		azimuth += -Gdx.input.getDeltaX() * Cubic.defaults.mouseSensitivity;
-		objectiveJoystick.rotate(azimuth, 0, 1, 0);
 			
 		Vector3 subjectiveJoystick = new Vector3();
 		if (Gdx.input.isKeyPressed(Input.Keys.SPACE) && state == State.GROUNDED) {
@@ -89,10 +98,12 @@ public class Player extends ModelInstance implements RenderableProvider, Updatab
 			//state = State.JUMPING;
 		}
 		
-		
-		
-		if (rigidBody.getLinearVelocity().len2() < 500) rigidBody.applyCentralImpulse(objectiveJoystick.add(subjectiveJoystick));
-
+		if (rigidBody.getLinearVelocity().len2() < 500) {
+			rigidBody.applyCentralImpulse(objectiveJoystick.add(subjectiveJoystick));
+			//System.out.println("Applying " + objectiveJoystick.add(subjectiveJoystick));
+			//System.out.println("Cube pos " + getTranslation());
+			//System.out.println("Rigidbody " + rigidBody.getCenterOfMassPosition());
+		}
 	}
 	
 	/**
@@ -102,13 +113,14 @@ public class Player extends ModelInstance implements RenderableProvider, Updatab
 	 */
 	@Override
 	public void update() {
-		transform.set(rigidBody.getCenterOfMassTransform());
+		//transform.set(rigidBody.getCenterOfMassTransform());
 		if (enableInput) input();
 	}
 	
 	/**
 	 * Dispose of the player. 
 	 * @author Noah Kim
+	 * @author Arman Siddique
 	 */
 	@Override
 	public void dispose() {
@@ -127,5 +139,4 @@ public class Player extends ModelInstance implements RenderableProvider, Updatab
 	public Vector3 getTranslation() {
 		return new Vector3(transform.val[Matrix4.M03], transform.val[Matrix4.M13], transform.val[Matrix4.M23]);
 	}
-	
 }
