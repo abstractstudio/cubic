@@ -19,6 +19,7 @@ import com.badlogic.gdx.physics.bullet.collision.btCollisionObject;
 import com.badlogic.gdx.physics.bullet.collision.btCollisionShape;
 import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody;
 import com.noahbkim.cubic.physics.PhysicsWorld;
+import com.noahbkim.cubic.player.OrbitCamera;
 import com.noahbkim.cubic.player.Player;
 import com.noahbkim.cubic.player.PlayerCamera;
 import com.noahbkim.cubic.utility.Models;
@@ -88,14 +89,13 @@ public class Cubic extends ApplicationAdapter {
         environment = new Environment();
         environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.4f, 0.4f, 0.4f, 1f));
         environment.add(new DirectionalLight().set(0.8f, 0.8f, 0.8f, 2f, -1f, 2f));
-        camera = new PlayerCamera();
         
         /* Set up the player. */
         player = Player.spawn();
         player.transform.val[Matrix4.M13] += player.dimensions.y / 2;
         
         /* Set up the camera. */
-        camera.setTarget(player);
+        camera = new PlayerCamera(player);
         
         /* Create another player for reference. */
         Player reference = Player.spawn();
