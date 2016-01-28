@@ -37,7 +37,8 @@ public class Models {
 	 */
 	public static Model box(Vector3 dimensions, Material material, long attributes) {
 		ModelBuilder builder = new ModelBuilder();
-		return builder.createBox(dimensions.x, dimensions.y, dimensions.z, material, attributes);
+		Model box = builder.createBox(dimensions.x, dimensions.y, dimensions.z, material, attributes);
+		return box;
 	}
 
 	/**

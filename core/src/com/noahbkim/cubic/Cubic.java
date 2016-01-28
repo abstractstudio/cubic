@@ -75,7 +75,7 @@ public class Cubic extends ApplicationAdapter {
 	@Override
 	public void create() {
 		
-		testNetwork();
+		//testNetwork();
 		
 		/* Initialize Bullet. */
         Bullet.init();
@@ -91,19 +91,17 @@ public class Cubic extends ApplicationAdapter {
         camera = new PlayerCamera();
         
         /* Set up the player. */
-        player = new Player();
-        player.enableInput = true;
-        player.enableRotation = true;
-        player.transform.val[Matrix4.M13] += Player.dimensions.y / 2;
+        player = Player.spawn();
+        player.transform.val[Matrix4.M13] += player.dimensions.y / 2;
         
         /* Set up the camera. */
         camera.setTarget(player);
         
         /* Create another player for reference. */
-        Player reference = new Player();
-        reference.enableInput = false;
+        Player reference = Player.spawn();
+        reference.movementEnabled = false;
         reference.transform.translate(15f, 0, 0);
-        reference.transform.val[Matrix4.M13] += Player.dimensions.y / 2;
+        reference.transform.val[Matrix4.M13] += reference.dimensions.y / 2;
         reference.rigidBody.setWorldTransform(reference.transform);
         
         /* Create a floor. */
