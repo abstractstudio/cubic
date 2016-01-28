@@ -24,11 +24,11 @@ import com.noahbkim.cubic.utility.Updatable;
  */
 public class PhysicsWorld implements Updatable, Disposable {
 	/** Physics world variables. */
-	private btCollisionConfiguration collisionConfig;
-	private btDispatcher dispatcher;
-	private btDbvtBroadphase broadphase;
-	private btConstraintSolver constraintSolver;
-	private btDynamicsWorld dynamicsWorld;
+	public btCollisionConfiguration collisionConfig;
+	public btDispatcher dispatcher;
+	public btDbvtBroadphase broadphase;
+	public btConstraintSolver constraintSolver;
+	public btDynamicsWorld dynamicsWorld;
 	
 	/** Physics simulation variable. */
 	private int maxSubSteps;

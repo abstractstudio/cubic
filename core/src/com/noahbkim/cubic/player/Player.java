@@ -1,5 +1,7 @@
 package com.noahbkim.cubic.player;
 
+import javax.swing.text.StyleConstants.CharacterConstants;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.g3d.Model;
@@ -10,9 +12,14 @@ import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.bullet.collision.btBoxShape;
 import com.badlogic.gdx.physics.bullet.collision.btCollisionShape;
+import com.badlogic.gdx.physics.bullet.collision.btConvexShape;
+import com.badlogic.gdx.physics.bullet.collision.btGhostPairCallback;
+import com.badlogic.gdx.physics.bullet.collision.btPairCachingGhostObject;
+import com.badlogic.gdx.physics.bullet.dynamics.btKinematicCharacterController;
 import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody;
 import com.badlogic.gdx.utils.Disposable;
 import com.noahbkim.cubic.Cubic;
+import com.noahbkim.cubic.physics.PhysicsWorld;
 import com.noahbkim.cubic.utility.Models;
 import com.noahbkim.cubic.utility.Updatable;
 
@@ -26,14 +33,15 @@ public class Player extends ModelInstance implements RenderableProvider, Updatab
 	 * Spawn a default player.
 	 * @return a new player
 	 */
-	public static Player spawn() {
+	public static Player spawn(PhysicsWorld world) {
 		Vector3 dimensions = new Vector3(1f, 1f, 1f);
 		float mass = 2.0f;
 		Model model = Models.box(dimensions);
-		return new Player(model, dimensions, mass);
+		return new Player(world, model, dimensions, mass);
 	}
 	
 	/** Model. */
+	public PhysicsWorld world;
 	public Model model;
 	public Vector3 dimensions;
 	public float mass;
@@ -45,23 +53,28 @@ public class Player extends ModelInstance implements RenderableProvider, Updatab
 	public boolean grounded;
 	
 	/** Physics. */
-	public btCollisionShape collisionShape;
-	public btRigidBody rigidBody;
-	public btRigidBody.btRigidBodyConstructionInfo constructionInfo;
-	private Vector3 localInertia = new Vector3();
+	private Vector3 localInertia;
 	private PlayerMotionState motionState;
+	public btCollisionShape collisionShape;
+	public btRigidBody.btRigidBodyConstructionInfo constructionInfo;
+	public btRigidBody rigidBody;
+	public btGhostPairCallback ghostPairCallback;
+	public btPairCachingGhostObject ghostObject;
+	public btKinematicCharacterController controller;
 	
 	/**
 	 * Instantiate a new player with a custom model. s
 	 * @param model the model of the player.
 	 */
-	private Player(Model model, Vector3 dimensions, float mass) {
+	private Player(PhysicsWorld world, Model model, Vector3 dimensions, float mass) {
 		/* Create the model. */
 		super(model);
+		this.world = world;
 		this.model = model;
 		this.dimensions = dimensions;
 		this.mass = mass;
 		/* Set up physics. */
+		localInertia = new Vector3();
 		motionState = new PlayerMotionState(this);
 		collisionShape = new btBoxShape(dimensions.scl(0.5f));
 		collisionShape.calculateLocalInertia(mass, localInertia);
@@ -69,6 +82,13 @@ public class Player extends ModelInstance implements RenderableProvider, Updatab
 		rigidBody = new btRigidBody(constructionInfo);
 		rigidBody.activate(true);
 		rigidBody.setFriction(0.9f);
+		ghostPairCallback = new btGhostPairCallback();
+		world.broadphase.getOverlappingPairCache().setInternalGhostPairCallback(ghostPairCallback);
+		ghostObject = new btPairCachingGhostObject();
+		ghostObject.setWorldTransform(transform);
+		ghostObject.setCollisionShape(collisionShape);
+		controller = new btKinematicCharacterController(ghostObject, (btConvexShape)collisionShape, 0.2f);
+		
 		/* Allow movement. */
 		rotationEnabled = true;
 		movementEnabled = true;
@@ -80,7 +100,9 @@ public class Player extends ModelInstance implements RenderableProvider, Updatab
 	public void input() {
 		if (rotationEnabled) {
 			float rotation = Gdx.input.getDeltaX() * Cubic.defaults.mouseSensitivity;
-			transform.rotate(new Quaternion(Vector3.Y, -rotation));
+			transform.rotate(0,  1, 0, -rotation);
+			System.out.println("Rotated " + rotation);
+			ghostObject.setWorldTransform(transform);
 		} 
 		
 		if (movementEnabled) {
@@ -89,7 +111,7 @@ public class Player extends ModelInstance implements RenderableProvider, Updatab
 			if (Gdx.input.isKeyPressed(Input.Keys.S)) objectiveJoystick.x -= 1;
 			if (Gdx.input.isKeyPressed(Input.Keys.A)) objectiveJoystick.z -= 1;
 			if (Gdx.input.isKeyPressed(Input.Keys.D)) objectiveJoystick.z += 1;
-				
+			
 			Vector3 subjectiveJoystick = new Vector3();
 			if (Gdx.input.isKeyPressed(Input.Keys.SPACE) && grounded) {
 				subjectiveJoystick.y += 5;
@@ -101,6 +123,8 @@ public class Player extends ModelInstance implements RenderableProvider, Updatab
 				//System.out.println("Applying " + objectiveJoystick.add(subjectiveJoystick));
 				//System.out.println("Cube pos " + getTranslation());
 				//System.out.println("Rigidbody " + rigidBody.getCenterOfMassPosition());
+			} else {
+				System.out.println("Too fast!");
 			}
 		}
 	}
@@ -111,7 +135,9 @@ public class Player extends ModelInstance implements RenderableProvider, Updatab
 	@Override
 	public void update() {
 		//transform.set(rigidBody.getCenterOfMassTransform());
+		System.out.println("Started update");
 		input();
+		System.out.println("Finished update");
 	}
 	
 	/**
