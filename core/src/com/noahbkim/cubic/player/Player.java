@@ -103,7 +103,6 @@ public class Player extends ModelInstance implements RenderableProvider, Updatab
 			while (azimuth < -360) azimuth += 360;
 			
 			transform.rotate(0, 1, 0, -rotation);
-			System.out.println("Rotated " + rotation);
 			ghostObject.setWorldTransform(transform);
 		} 
 		
@@ -137,9 +136,7 @@ public class Player extends ModelInstance implements RenderableProvider, Updatab
 	@Override
 	public void update() {
 		//transform.set(rigidBody.getCenterOfMassTransform());
-		System.out.println("Started update");
 		input();
-		System.out.println("Finished update");
 	}
 	
 	/**

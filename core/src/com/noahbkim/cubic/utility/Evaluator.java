@@ -46,7 +46,7 @@ public class Evaluator {
 		else if (type.equals(FLOAT)) return Float.parseFloat(value);
 		else if (type.equals(BOOLEAN)) return Boolean.parseBoolean(value);
 		else if (type.equals(STRING)) {
-			if (value.startsWith("\"") && value.endsWith("\""))
+			if (value.startsWith("\"") && value.endsWith("\"") || value.startsWith("'") && value.endsWith("'"))
 				return value.substring(1, value.length() - 1);
 			else
 				return value;
