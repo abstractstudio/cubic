@@ -74,13 +74,13 @@ public class Cubic extends ApplicationAdapter {
 	@Override
 	public void create() {
 		
-		/* Load the settings. */
-		settings = new Settings("cubic.settings");
-		
 		testNetwork();
 		
 		/* Initialize Bullet. */
         Bullet.init();
+		
+		/* Load the settings. */
+		settings = new Settings("cubic.settings");
 		
 		/* Set up the rendering equipment. */
 		batch = new ModelBatch();
@@ -221,7 +221,6 @@ public class Cubic extends ApplicationAdapter {
 	}
 	
 	public void testNetwork() {
-		int port = 5001;
 		Server s = new Server();
 		s.start();
 		Client c = new Client("127.0.0.1", 6969);
