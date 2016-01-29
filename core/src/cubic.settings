@@ -1,3 +1,4 @@
 
 # Network
-default-port: int = 30305
+host: string = 127.0.0.1
+port: int = 6969

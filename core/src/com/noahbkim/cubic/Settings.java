@@ -35,8 +35,6 @@ public class Settings {
 	 * </ol>
 	 * For more information on types and values, see {@link Evaluator#evaluate(String, String)}.
 	 * @param path the path to the file.
-	 * @author Noah Kim
-	 * @author Arman Siddique
 	 */
 	public void load(String path) {
 		FileHandle file = Gdx.files.local(path);		
@@ -53,18 +51,12 @@ public class Settings {
 			String value = keyTypeValue[1].trim();
 			map.put(key, Evaluator.evaluate(value, type));
 		}
-		
-		for (String s : map.keySet()) {
-			System.out.println(s + " | " + map.get(s));
-		}
 	}
 	
 	/**
 	 * Gets the value of a specific setting.
 	 * @param name the name of the setting.
 	 * @return the value of the specified setting.
-	 * @author Noah Kim
-	 * @author Arman Siddique
 	 */
 	public Object get(String name) {
 		return map.get(name);
@@ -75,8 +67,6 @@ public class Settings {
 	 * @param name the name of the setting.
 	 * @param value the value of the setting.
 	 * @return the previously value of the settings, or null if it's new.
-	 * @author Noah Kim
-	 * @author Arman Siddique
 	 */
 	public Object set(String name, Object value) {
 		return map.put(name, value);

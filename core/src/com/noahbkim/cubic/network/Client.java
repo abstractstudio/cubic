@@ -12,10 +12,10 @@ public class Client {
 	public Client(String ip, int port) {
 		SocketHints hints = new SocketHints();
 		Socket socket = Gdx.net.newClientSocket(Protocol.TCP, ip, port, hints);
-		System.out.println("Connected");
+		System.out.println("Client: connected");
 		try {
-			socket.getOutputStream().write("Hello, world".getBytes());
-			System.out.println("Wrote to stream");
+			socket.getOutputStream().write("Hello, world\n".getBytes());
+			System.out.println("Client: wrote to stream");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

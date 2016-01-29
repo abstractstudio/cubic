@@ -3,81 +3,118 @@ package com.noahbkim.cubic.network;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Queue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Net.Protocol;
 import com.badlogic.gdx.net.ServerSocketHints;
 import com.badlogic.gdx.net.ServerSocket;
 import com.badlogic.gdx.net.Socket;
+import com.noahbkim.cubic.Settings;
 
-public class Server {	
+/**
+ * The server side of the Cubic game. Hosts the physics engine as well as the main game processing.
+ * @author Noah Kim
+ */
+public class Server {
 	
-	/* Server state */
+	/* Server state. */
 	private boolean alive;
 	
-	/* Sockets */
+	/* Settings. */
+	public Settings settings;
+	public String host;
+	public int port;
+	
+	/* Socket utilities. */
 	private ServerSocketHints hints;
 	private ServerSocket socket;
 	public ArrayList<Handler> handlers;
-	
-	/* Queue */
-	public Queue<Message> queue;
+	public ArrayList<Thread> threads;
+	public LinkedBlockingQueue<HandlerMessage> queue;
 	
 	/**
 	 * Initialize a socket server on a port.
-	 * @param port
+	 * @param port the port to initialize the server on
 	 */
-	public Server(int port) {
-		
-		/* State */
+	public Server() {
+		/* Start the server. */
 		alive = true;
-		
-		/* Sockets */
+		/* Settings. */
+		settings = new Settings("cubic.settings");
+		host = (String)settings.get("host");
+		port = (int)(Integer)settings.get("port");
+		/* Create the handler list and message queue. */
 		handlers = new ArrayList<Handler>();
+		queue = new LinkedBlockingQueue<HandlerMessage>();
+		/* Create the socket. */
 		hints = new ServerSocketHints();
 		hints.acceptTimeout = 0;
-		
-		socket = Gdx.net.newServerSocket(Protocol.TCP, port, hints);
-		
-		queue = new LinkedList<Message>();
+		socket = Gdx.net.newServerSocket(Protocol.TCP, host, port, hints);
+		/* Logging. */
+		log("initialized on " + host + ":" + port);
+
 	}
 	
+	/**
+	 * Listen for any incoming connections.
+	 */
 	public void listen() {
+		/* Loop the listener. */
+		log("started listening");
 		while (alive) {
-			System.out.println("Listening");
+			/* Accept a new connection and create a new handler. */
 			Socket client = socket.accept(null);
-			System.out.println("Accepted");
-			Handler handler = new Handler(client, this);
+			Handler handler = new Handler(handlers.size(), client, this);
 			handlers.add(handler);
-			new Thread(handler).start();
-			System.out.println("Received new connection");
+			/* Keep track of the thread. */
+			Thread thread = new Thread(handler);
+			thread.start();
+			threads.add(thread);
+			log("received new connection from " + client.getRemoteAddress());
 		}
+		log("exited listener loop");
 	}
 	
+	/**
+	 * Execute the main server update.
+	 */
 	public void serve() {
-		System.out.println("Running server");
+		/* Loop the main server. */
+		log("started serving");
 		while (alive) {
-			while (queue.isEmpty());
-			Message message = queue.poll();
-			System.out.println("Got a message");
-			System.out.println(message.contents);
+			/* Create a blank message. */
+			HandlerMessage message = null;
+			/* Try to pull one from the queue. */
+			try { message = queue.take(); } catch (InterruptedException e) { e.printStackTrace(); return; }
+			/* Echo the message. */
+			log("received: " + message.contents);
 			message.handler.send(message.contents);
 		}
+		log("exited server loop");
 	}
 	
+	/**
+	 * Start the server.
+	 */
 	public void start() {
-		new Thread(new Runnable() {
-			@Override
-			public void run() { listen(); }
-		}).start();
-		new Thread(new Runnable() {
-			@Override
-			public void run() { serve(); }
-		}).start();
+		/* Start the listener and server. */
+		new Thread(new Runnable() { public void run() { listen(); } }).start();
+		new Thread(new Runnable() { public void run() { serve(); } }).start();
+		/* Shut down the server. */
+		log("server shut down");
 	}
 	
+	/**
+	 * Stop the server.
+	 */
 	public void stop() {
-		
+		alive = false;
+		for (Thread thread : this.threads) { thread.interrupt(); }
+	}
+	
+	public void log(String message) {
+		Gdx.app.log("Cubic Server", message);
 	}
 	
 }
