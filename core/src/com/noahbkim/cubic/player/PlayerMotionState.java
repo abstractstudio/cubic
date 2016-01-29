@@ -19,9 +19,9 @@ public class PlayerMotionState extends btMotionState {
 	@Override
 	public void setWorldTransform(Matrix4 worldTrans) {
 		player.transform.set(worldTrans);
-		System.out.println(player.transform);
-		System.out.println(worldTrans);
-		System.out.println("--------------------------------------------");
+		//System.out.println(player.transform);
+		//System.out.println(worldTrans);
+		//System.out.println("--------------------------------------------");
 		//System.out.println(player.getTranslation());
 		//System.out.println("Setting " + System.nanoTime());
 	}

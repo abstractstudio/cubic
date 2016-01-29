@@ -24,16 +24,14 @@ public class OrbitCamera extends PerspectiveCamera implements Updatable {
 	}
 	
 	/** Player and relative location. */
-	private Player player;
+	protected Player player;
 //	public float azimuth = Defaults.startingAzimuth;
 //	public float altitude = Defaults.startingAltitude;
-	private Quaternion rotation; 
-	private float radius = Defaults.startingRadius;
+	protected Quaternion rotation; 
+	protected float radius;
 	
 	/** 
 	 * Initialize a new player camera with default settings.
-	 * @author Noah Kim
-	 * @author Arman Siddique
 	 */
 	public OrbitCamera() {
         this(Defaults.fieldOfView, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
@@ -41,18 +39,15 @@ public class OrbitCamera extends PerspectiveCamera implements Updatable {
 	
 	/** 
 	 * Initialize a player camera with control over the perspective camera instantiation.
-	 * @author Noah Kim
-	 * @author Arman Siddique
 	 */
 	public OrbitCamera(float fieldOfView, int width, int height) {
 		super(fieldOfView, width, height);
 		rotation = (new Quaternion(Vector3.X, Defaults.startingAltitude)).mulLeft(new Quaternion(Vector3.Y, Defaults.startingAzimuth));
+		radius = Defaults.startingRadius;
 	}
 	
 	/**
-	 * Update the player camera. 
-	 * @author Noah Kim
-	 * @author Arman Siddique
+	 * Update the player camera's transform. 
 	 */
 	@Override
 	public void update() {	
@@ -77,9 +72,14 @@ public class OrbitCamera extends PerspectiveCamera implements Updatable {
 	}
 	
 	/**
+	 * Used by subclasses to call {@link PerspectiveCamera#update()}.
+	 */
+	protected void updatePerspectiveCamera() {
+		super.update();
+	}
+	
+	/**
 	 * Process the mouse input.
-	 * @author Noah Kim
-	 * @author Arman Siddique
 	 */
 	public void input() {
 		float rotX = Gdx.input.getDeltaX() * Cubic.defaults.mouseSensitivity;
@@ -94,8 +94,6 @@ public class OrbitCamera extends PerspectiveCamera implements Updatable {
 	/**
 	 * Gets the player that this camera is targeting.
 	 * @return the current target.
-	 * @author Noah Kim
-	 * @author Arman Siddique
 	 */
 	public Player getTarget() {
 		return player;
@@ -104,13 +102,15 @@ public class OrbitCamera extends PerspectiveCamera implements Updatable {
 	/**
 	 * Makes this camera target a specific player.
 	 * @param player the player to bind the camera to.
-	 * @author Noah Kim
-	 * @author Arman Siddique
 	 */
 	public void setTarget(Player player) {
 		this.player = player;
 	}
 	
+	/**
+	 * Gets the rotation of this camera as a quaternion.
+	 * @return the rotation
+	 */
 	public Quaternion getRotation() {
 		return rotation;
 	}

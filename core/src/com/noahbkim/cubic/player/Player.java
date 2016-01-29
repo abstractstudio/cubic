@@ -1,14 +1,11 @@
 package com.noahbkim.cubic.player;
 
-import javax.swing.text.StyleConstants.CharacterConstants;
-
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.RenderableProvider;
 import com.badlogic.gdx.math.Matrix4;
-import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.bullet.collision.btBoxShape;
 import com.badlogic.gdx.physics.bullet.collision.btCollisionShape;
@@ -73,6 +70,7 @@ public class Player extends ModelInstance implements RenderableProvider, Updatab
 		this.model = model;
 		this.dimensions = dimensions;
 		this.mass = mass;
+		
 		/* Set up physics. */
 		localInertia = new Vector3();
 		motionState = new PlayerMotionState(this);
@@ -100,7 +98,11 @@ public class Player extends ModelInstance implements RenderableProvider, Updatab
 	public void input() {
 		if (rotationEnabled) {
 			float rotation = Gdx.input.getDeltaX() * Cubic.defaults.mouseSensitivity;
-			transform.rotate(0,  1, 0, -rotation);
+			azimuth += rotation;
+			while (azimuth > 360) azimuth -= 360;
+			while (azimuth < -360) azimuth += 360;
+			
+			transform.rotate(0, 1, 0, -rotation);
 			System.out.println("Rotated " + rotation);
 			ghostObject.setWorldTransform(transform);
 		} 

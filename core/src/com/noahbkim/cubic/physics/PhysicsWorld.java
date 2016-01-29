@@ -42,6 +42,9 @@ public class PhysicsWorld implements Updatable, Disposable {
 	 * @param fixedTimeStep the length of the physics engine's internal clock.
 	 */
 	public PhysicsWorld(int maxSubSteps, float fixedTimeStep) {
+		this.maxSubSteps = maxSubSteps;
+		this.fixedTimeStep = fixedTimeStep;
+		
 		collisionConfig = new btDefaultCollisionConfiguration();
         dispatcher = new btCollisionDispatcher(collisionConfig);
         broadphase = new btDbvtBroadphase();

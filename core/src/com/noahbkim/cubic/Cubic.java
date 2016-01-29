@@ -18,12 +18,13 @@ import com.badlogic.gdx.physics.bullet.collision.btBoxShape;
 import com.badlogic.gdx.physics.bullet.collision.btCollisionObject;
 import com.badlogic.gdx.physics.bullet.collision.btCollisionShape;
 import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody;
+import com.noahbkim.cubic.network.Client;
+import com.noahbkim.cubic.network.Server;
 import com.noahbkim.cubic.physics.PhysicsWorld;
 import com.noahbkim.cubic.player.Player;
 import com.noahbkim.cubic.player.PlayerCamera;
 import com.noahbkim.cubic.utility.Models;
 import com.noahbkim.cubic.utility.Updatable;
-import com.noahbkim.cubic.network.*;
 
 /**
  * Main game class.
@@ -69,8 +70,6 @@ public class Cubic extends ApplicationAdapter {
 
 	/**
 	 * Create the game.
-	 * @author Noah Kim
-	 * @author Arman Siddique
 	 */
 	@Override
 	public void create() {
@@ -146,8 +145,6 @@ public class Cubic extends ApplicationAdapter {
 
 	/**
 	 * Render the game.
-	 * @author Noah Kim
-	 * @author Arman Siddique
 	 */
 	@Override
 	public void render() {
@@ -168,6 +165,13 @@ public class Cubic extends ApplicationAdapter {
         	if (state == State.PLAYING) pause();
         	else if (state == State.PAUSED) resume();
         }
+        if (Gdx.input.isButtonPressed(Input.Buttons.RIGHT) && camera.isFollowingTarget()) {
+        	System.out.println("Now using orbit camera");
+        	camera.followTarget(false);
+        } else if (!Gdx.input.isButtonPressed(Input.Buttons.RIGHT) && !camera.isFollowingTarget()) {
+        	System.out.println("Now using player camera");
+        	camera.followTarget(true);
+        }
 
         /* Render. */
 		batch.begin(camera);
@@ -177,8 +181,6 @@ public class Cubic extends ApplicationAdapter {
 	
 	/**
 	 * Dispose of the game.
-	 * @author Noah Kim
-	 * @author Arman Siddique
 	 */
 	@Override
 	public void dispose() {
