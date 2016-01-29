@@ -101,7 +101,6 @@ public class Cubic extends ApplicationAdapter {
         /* Set up the player. */
         player = Player.spawn(physicsWorld);
         player.transform.val[Matrix4.M13] += player.dimensions.y / 2;
-        player.ghostObject.setWorldTransform(player.transform);
         
         /* Set up the camera. */
         camera = new PlayerCamera(player);
@@ -112,12 +111,12 @@ public class Cubic extends ApplicationAdapter {
         reference.rotationEnabled = false;
         reference.transform.translate(15f, 0, 0);
         reference.transform.val[Matrix4.M13] += reference.dimensions.y / 2;
-        reference.ghostObject.setWorldTransform(reference.transform);
         
         /* Create a floor. */
         ModelInstance floor = new ModelInstance(Models.box(new Vector3(100, 1, 100), Models.defaults.material2, Models.defaults.attributes));
         floor.transform.val[Matrix4.M13] -= 0.5;
         groundRigidBody.setWorldTransform(floor.transform);
+        groundRigidBody.setFriction(1.0f);
 
         /* Create the reference lists. */
         players = new ArrayList<Player>();

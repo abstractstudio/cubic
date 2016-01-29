@@ -55,9 +55,6 @@ public class Player extends ModelInstance implements RenderableProvider, Updatab
 	public btCollisionShape collisionShape;
 	public btRigidBody.btRigidBodyConstructionInfo constructionInfo;
 	public btRigidBody rigidBody;
-	public btGhostPairCallback ghostPairCallback;
-	public btPairCachingGhostObject ghostObject;
-	public btKinematicCharacterController controller;
 	
 	/**
 	 * Instantiate a new player with a custom model. s
@@ -79,13 +76,7 @@ public class Player extends ModelInstance implements RenderableProvider, Updatab
 		constructionInfo = new btRigidBody.btRigidBodyConstructionInfo(mass, motionState, collisionShape, localInertia);
 		rigidBody = new btRigidBody(constructionInfo);
 		rigidBody.activate(true);
-		rigidBody.setFriction(0.9f);
-		ghostPairCallback = new btGhostPairCallback();
-		world.broadphase.getOverlappingPairCache().setInternalGhostPairCallback(ghostPairCallback);
-		ghostObject = new btPairCachingGhostObject();
-		ghostObject.setWorldTransform(transform);
-		ghostObject.setCollisionShape(collisionShape);
-		controller = new btKinematicCharacterController(ghostObject, (btConvexShape)collisionShape, 0.2f);
+		rigidBody.setFriction(0.5f);
 		
 		/* Allow movement. */
 		rotationEnabled = true;
@@ -102,9 +93,8 @@ public class Player extends ModelInstance implements RenderableProvider, Updatab
 			while (azimuth > 360) azimuth -= 360;
 			while (azimuth < -360) azimuth += 360;
 			
-			transform.rotate(0, 1, 0, -rotation);
-			System.out.println("Rotated " + rotation);
-			ghostObject.setWorldTransform(transform);
+			//transform.rotate(0, 1, 0, -rotation);
+			//System.out.println("Rotated " + rotation);
 		} 
 		
 		if (movementEnabled) {
@@ -122,9 +112,10 @@ public class Player extends ModelInstance implements RenderableProvider, Updatab
 			
 			if (rigidBody.getLinearVelocity().len2() < 500) {
 				rigidBody.applyCentralImpulse(objectiveJoystick.add(subjectiveJoystick));
-				//System.out.println("Applying " + objectiveJoystick.add(subjectiveJoystick));
-				//System.out.println("Cube pos " + getTranslation());
-				//System.out.println("Rigidbody " + rigidBody.getCenterOfMassPosition());
+				System.out.println("Applying " + objectiveJoystick.add(subjectiveJoystick));
+				System.out.println("Cube pos " + getTranslation());
+				System.out.println("Rigidbody " + rigidBody.getCenterOfMassPosition());
+				System.out.println();
 			} else {
 				System.out.println("Too fast!");
 			}
@@ -137,9 +128,9 @@ public class Player extends ModelInstance implements RenderableProvider, Updatab
 	@Override
 	public void update() {
 		//transform.set(rigidBody.getCenterOfMassTransform());
-		System.out.println("Started update");
+		//System.out.println("Started update");
 		input();
-		System.out.println("Finished update");
+		//System.out.println("Finished update");
 	}
 	
 	/**
