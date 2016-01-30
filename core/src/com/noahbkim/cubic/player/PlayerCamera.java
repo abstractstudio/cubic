@@ -13,8 +13,10 @@ import com.noahbkim.cubic.utility.Updatable;
  * @author Arman Siddique
  */
 public class PlayerCamera extends OrbitCamera implements Updatable {
+	private float azimuth;
 	private float altitude;
 	private boolean followPlayer;
+	private boolean justFollowedPlayer;
 	
 	public PlayerCamera(Player target) {
 		this(target, Defaults.fieldOfView, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
@@ -33,12 +35,20 @@ public class PlayerCamera extends OrbitCamera implements Updatable {
 			/* Get input. */
 			input();
 			
+			if (justFollowedPlayer) {
+				azimuth = MathUtils.lerpAngleDeg(azimuth, player.azimuth, 0.1f);
+				if (Math.abs(azimuth - player.azimuth) < 1e-2) justFollowedPlayer = false;
+			} else {
+				azimuth = player.azimuth;
+			}
+			System.out.println(justFollowedPlayer + " " + azimuth + " " + player.azimuth);
+			
 			/* Move and rotate the camera. */
 			Vector3 origin = player.getTranslation();
 			Vector3 translation = new Vector3();
-			translation.x = (float)(radius * MathUtils.sinDeg(altitude) * MathUtils.cosDeg(player.azimuth)) + origin.x;
+			translation.x = (float)(radius * MathUtils.sinDeg(altitude) * MathUtils.cosDeg(azimuth)) + origin.x;
 			translation.y = (float)(radius * MathUtils.cosDeg(altitude)) + origin.y;
-			translation.z = (float)(radius * MathUtils.sinDeg(altitude) * MathUtils.sinDeg(player.azimuth)) + origin.z;
+			translation.z = (float)(radius * MathUtils.sinDeg(altitude) * MathUtils.sinDeg(azimuth)) + origin.z;
 			position.set(translation);
 			up.set(Vector3.Y);
 			lookAt(origin);
@@ -65,7 +75,13 @@ public class PlayerCamera extends OrbitCamera implements Updatable {
 	
 	public void followTarget(boolean follow) {
 		followPlayer = follow;
-		if (follow) altitude = rotation.getPitch();
-		else rotation = (new Quaternion(Vector3.X, altitude)).mulLeft(new Quaternion(Vector3.Y, player.azimuth)); 
+		if (follow) {
+			altitude = rotation.getPitch();
+			azimuth = rotation.getYaw();
+			justFollowedPlayer = true;
+		}
+		else {
+			rotation = (new Quaternion(Vector3.X, altitude)).mulLeft(new Quaternion(Vector3.Y, player.azimuth)); 
+		}
 	}
 }

@@ -6,12 +6,11 @@ import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.assets.AssetManager;
-import com.badlogic.gdx.assets.loaders.TextureLoader.TextureParameter;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.Texture.TextureWrap;
 import com.badlogic.gdx.graphics.g3d.Environment;
+import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
@@ -24,7 +23,6 @@ import com.badlogic.gdx.physics.bullet.collision.btBoxShape;
 import com.badlogic.gdx.physics.bullet.collision.btCollisionObject;
 import com.badlogic.gdx.physics.bullet.collision.btCollisionShape;
 import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody;
-import com.badlogic.gdx.graphics.g3d.Material;
 import com.noahbkim.cubic.network.Connection;
 import com.noahbkim.cubic.network.Server;
 import com.noahbkim.cubic.network.tcp.TCPConnection;
@@ -131,13 +129,13 @@ public class Cubic extends ApplicationAdapter {
         
         /* Create a floor. */
         ModelInstance floor = new ModelInstance(Models.box(new Vector3(100, 1, 100), Models.defaults.material2, Models.defaults.attributes));
-        manager.load("floor.png", Texture.class);
-        manager.finishLoading();
-        Texture texture = manager.get("floor.png");
-        texture.setWrap(TextureWrap.Repeat, TextureWrap.Repeat);
-        TextureAttribute textureAttribute = new TextureAttribute(TextureAttribute.Diffuse, texture);
-        Material material = floor.materials.get(0);
-        material.set(textureAttribute);
+//        manager.load("floor.png", Texture.class);
+//        manager.finishLoading();
+//        Texture texture = manager.get("floor.png");
+//        texture.setWrap(TextureWrap.Repeat, TextureWrap.Repeat);
+//        TextureAttribute textureAttribute = new TextureAttribute(TextureAttribute.Diffuse, texture);
+//        Material material = floor.materials.get(0);
+//        material.set(textureAttribute);
         
         floor.transform.val[Matrix4.M13] -= 0.5;
         groundRigidBody.setWorldTransform(floor.transform);
