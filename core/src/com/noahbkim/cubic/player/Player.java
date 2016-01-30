@@ -81,7 +81,7 @@ public class Player extends ModelInstance implements RenderableProvider, Updatab
 		rigidBody = new btRigidBody(constructionInfo);
 		rigidBody.setActivationState(Collision.DISABLE_DEACTIVATION);
 		rigidBody.activate(true);
-		rigidBody.setFriction(0.8f);
+		rigidBody.setFriction(0.6f);
 		
 		/* Constants. */
 		angularVelocityLimit = 4.0f;
@@ -106,14 +106,21 @@ public class Player extends ModelInstance implements RenderableProvider, Updatab
 			float rotation = Gdx.input.getDeltaX() * Cubic.defaults.mouseSensitivity;
 			float mouseAcceleration = rotation - lastRotation;
 			
-			/* Apply an impulse if below terminal. */
+			Vector3 current = rigidBody.getAngularVelocity();
+			if (control) {
+				Vector3 adjusted = new Vector3(0, 1, 0).scl(-rotation);
+				current.y = adjusted.y;
+				rigidBody.setAngularVelocity(current);	
+			}			
+			
+			/* Apply an impulse if below terminal. *//*
 			if (rigidBody.getAngularVelocity().len2() < angularVelocityLimit) {
 				float magnitude = Math.signum(mouseAcceleration) * (float)Math.sqrt(Math.abs(mouseAcceleration) * angularAccelerationFactor);
 				Vector3 r = new Vector3(1, 0, 0);
 				Vector3 f = (new Vector3(0, 0, 1)).scl(magnitude);
-				/* TODO: scale to meet the limit. */
+				/* TODO: scale to meet the limit. *//*
 				rigidBody.applyTorqueImpulse(r.crs(f));
-			}
+			} */
 			
 			/* Get the azimuth for the camera. */
 			Quaternion bodyRot = new Quaternion();
