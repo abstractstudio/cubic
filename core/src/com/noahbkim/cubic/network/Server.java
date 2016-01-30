@@ -44,6 +44,7 @@ public class Server {
 		port = (int)(Integer)settings.get("port");
 		/* Create the handler list and message queue. */
 		handlers = new ArrayList<Handler>();
+		threads = new ArrayList<Thread>();
 		queue = new LinkedBlockingQueue<HandlerMessage>();
 		/* Create the socket. */
 		hints = new ServerSocketHints();
@@ -86,10 +87,11 @@ public class Server {
 			/* Try to pull one from the queue. */
 			try { message = queue.take(); } catch (InterruptedException e) { e.printStackTrace(); return; }
 			/* Echo the message. */
-			log("received: " + message.contents);
+			log("received \"" + message.contents + "\"");
 			message.handler.send(message.contents);
 		}
 		log("exited server loop");
+		socket.dispose();
 	}
 	
 	/**
@@ -97,10 +99,14 @@ public class Server {
 	 */
 	public void start() {
 		/* Start the listener and server. */
-		new Thread(new Runnable() { public void run() { listen(); } }).start();
-		new Thread(new Runnable() { public void run() { serve(); } }).start();
+		Thread listener = new Thread(new Runnable() { public void run() { listen(); } });
+		Thread server = new Thread(new Runnable() { public void run() { serve(); } });
+		listener.start();
+		server.start();
+		threads.add(listener);
+		threads.add(server);
 		/* Shut down the server. */
-		log("server shut down");
+		log("server started");
 	}
 	
 	/**

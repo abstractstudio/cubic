@@ -1,4 +1,4 @@
 
 # Network
 host: string = 127.0.0.1
-port: int = 6969
+port: int = 6003

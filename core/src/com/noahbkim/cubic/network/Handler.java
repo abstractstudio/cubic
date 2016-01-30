@@ -4,7 +4,9 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.net.Socket;
 
@@ -21,7 +23,7 @@ public class Handler implements Runnable {
 	/* Handler socket. */
 	private Socket socket;
 	private BufferedReader input;
-	private BufferedWriter output;
+	private OutputStream output;
 	
 	/* Handler server. */
 	private Server server;
@@ -40,7 +42,7 @@ public class Handler implements Runnable {
 		this.server = server;
 		/* Bind the input and output streams. */
 		input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-		output = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+		output = socket.getOutputStream();
 	}
 	
 	/**
@@ -49,35 +51,42 @@ public class Handler implements Runnable {
 	 */
 	public void send(String contents) {
 		/* Write the message. */
-		try { output.write(contents); } catch (IOException e) { e.printStackTrace(); }
+		try { output.write((contents + "\n").getBytes()); } catch (IOException e) { e.printStackTrace(); }
 	}
 	
 	/**
 	 * Receive a message from the client. Blocks the thread.
 	 * @return the clients message bundled with a reference to the handler.
 	 */
-	public HandlerMessage receive() {
-		/* Create a null message. */
-		HandlerMessage message = new HandlerMessage(this, "ERROR");
+	public String receive() {
 		/* Try to read a message. */
+		String contents = null;
 		try {
-			String contents = input.readLine();
-			message = new HandlerMessage(this, contents);
+			contents = input.readLine();
+			log("received \"" + contents + "\"");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		/* Try to return the message. */
-		return message;
+		return contents;
 	}
 	
 	/**
 	 * Run the handler by receiving and passing messages to the server.
 	 */
 	public void run() {
+		log("started");
 		while (alive) {
-			HandlerMessage message = receive();
+			String contents = receive();
+			if (contents == null) {
+				alive = false;
+				log("failed in receive");
+				return;
+			}
+			HandlerMessage message = new HandlerMessage(this, contents);
 			if (message != null) server.queue.add(message);
 		}
+		log("stopped");
 	}
 	
 	/**

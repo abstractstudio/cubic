@@ -18,7 +18,7 @@ import com.badlogic.gdx.physics.bullet.collision.btBoxShape;
 import com.badlogic.gdx.physics.bullet.collision.btCollisionObject;
 import com.badlogic.gdx.physics.bullet.collision.btCollisionShape;
 import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody;
-import com.noahbkim.cubic.network.Client;
+import com.noahbkim.cubic.network.Connection;
 import com.noahbkim.cubic.network.Server;
 import com.noahbkim.cubic.physics.PhysicsWorld;
 import com.noahbkim.cubic.player.Player;
@@ -74,13 +74,13 @@ public class Cubic extends ApplicationAdapter {
 	@Override
 	public void create() {
 		
-		testNetwork();
-		
 		/* Initialize Bullet. */
         Bullet.init();
 		
 		/* Load the settings. */
 		settings = new Settings("cubic.settings");
+
+		testNetwork();
 		
 		/* Set up the rendering equipment. */
 		batch = new ModelBatch();
@@ -221,9 +221,13 @@ public class Cubic extends ApplicationAdapter {
 	}
 	
 	public void testNetwork() {
+		System.out.println((Integer)settings.get("port"));
 		Server s = new Server();
 		s.start();
-		Client c = new Client("127.0.0.1", 6969);
+		Connection c = new Connection("127.0.0.1", (Integer)settings.get("port"));
+		Thread t = new Thread(c);
+		t.start();
+		c.send("Hello, world!");
 	}
 
 }
