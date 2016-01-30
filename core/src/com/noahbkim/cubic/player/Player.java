@@ -49,6 +49,7 @@ public class Player extends ModelInstance implements RenderableProvider, Updatab
 	public boolean rotationEnabled;
 	public float azimuth;
 	public boolean grounded;
+	public float lastRotation;
 	
 	/** Physics. */
 	private Vector3 localInertia;
@@ -83,6 +84,7 @@ public class Player extends ModelInstance implements RenderableProvider, Updatab
 		/* Allow movement. */
 		rotationEnabled = true;
 		movementEnabled = true;
+		lastRotation = 0;
 	}
 
 	/**
@@ -91,12 +93,11 @@ public class Player extends ModelInstance implements RenderableProvider, Updatab
 	public void input() {
 		if (rotationEnabled) {
 			float rotation = Gdx.input.getDeltaX() * Cubic.defaults.mouseSensitivity;
-			azimuth += rotation;
-			while (azimuth > 360) azimuth -= 360;
-			while (azimuth < -360) azimuth += 360;
+			float mouseAcceleration = rotation - lastRotation;
+			Vector3 r = new Vector3(1, 0, 0);
+			Vector3 f = (new Vector3(0, 0, 1)).scl(mouseAcceleration * 0.01f);
+			rigidBody.applyTorqueImpulse(r.crs(f));
 			
-			//transform.rotate(0, 1, 0, -rotation);
-			//System.out.println("Rotated " + rotation);
 		} 
 		
 		if (movementEnabled) {
