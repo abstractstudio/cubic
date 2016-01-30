@@ -46,8 +46,12 @@ public class Player extends ModelInstance implements RenderableProvider, Updatab
 	public boolean movementEnabled;
 	public boolean rotationEnabled;
 	public float azimuth;
-	public boolean grounded;
+	public boolean control;
 	public float lastRotation;
+	
+	public float angularVelocityLimit;
+	public float angularAccelerationFactor;
+	public float linearVelocityLimit;
 	
 	/** Physics. */
 	private Vector3 localInertia;
@@ -79,10 +83,17 @@ public class Player extends ModelInstance implements RenderableProvider, Updatab
 		rigidBody.activate(true);
 		rigidBody.setFriction(0.5f);
 		
+		/* Constants. */
+		angularVelocityLimit = 4.0f;
+		angularAccelerationFactor = 0.2f;
+		linearVelocityLimit = 500f;
+		
 		/* Allow movement. */
 		rotationEnabled = true;
 		movementEnabled = true;
 		lastRotation = 0;
+		
+		control = true;
 	}
 
 	/**
@@ -90,47 +101,41 @@ public class Player extends ModelInstance implements RenderableProvider, Updatab
 	 */
 	public void input() {
 		if (rotationEnabled) {
+			/* Determine the mouse acceleration. */
 			float rotation = Gdx.input.getDeltaX() * Cubic.defaults.mouseSensitivity;
 			float mouseAcceleration = rotation - lastRotation;
 			
-			final float terminalAngularVel = 4.0f;
-			
-			if (rigidBody.getAngularVelocity().len2() < terminalAngularVel) {
-				final float accelFactor = 0.02f;
+			/* Apply an impulse if below terminal. */
+			if (rigidBody.getAngularVelocity().len2() < angularVelocityLimit) {
+				float magnitude = Math.signum(mouseAcceleration) * (float)Math.sqrt(Math.abs(mouseAcceleration)) * angularAccelerationFactor;
 				Vector3 r = new Vector3(1, 0, 0);
-				Vector3 f = (new Vector3(0, 0, 1)).scl(mouseAcceleration * accelFactor);
+				Vector3 f = (new Vector3(0, 0, 1)).scl(magnitude);
+				/* TODO: scale to meet the limit. */
 				rigidBody.applyTorqueImpulse(r.crs(f));
-			} else {
-				System.out.println(rigidBody.getAngularVelocity().len2());
 			}
 			
+			/* Get the azimuth for the camera. */
 			Quaternion bodyRot = new Quaternion();
 			rigidBody.getCenterOfMassTransform().getRotation(bodyRot);
 			azimuth = -bodyRot.getYaw();
-			System.out.println(azimuth);
 		} 
 		
 		if (movementEnabled) {
-			Vector3 objectiveJoystick = new Vector3();
-			if (Gdx.input.isKeyPressed(Input.Keys.W)) objectiveJoystick.x += 1;
-			if (Gdx.input.isKeyPressed(Input.Keys.S)) objectiveJoystick.x -= 1;
-			if (Gdx.input.isKeyPressed(Input.Keys.A)) objectiveJoystick.z -= 1;
-			if (Gdx.input.isKeyPressed(Input.Keys.D)) objectiveJoystick.z += 1;
+			/* Get the raw vector of the keyboard input. */
+			Vector3 joystick = new Vector3();
+			if (Gdx.input.isKeyPressed(Input.Keys.W)) joystick.x += 1;
+			if (Gdx.input.isKeyPressed(Input.Keys.S)) joystick.x -= 1;
+			if (Gdx.input.isKeyPressed(Input.Keys.A)) joystick.z -= 1;
+			if (Gdx.input.isKeyPressed(Input.Keys.D)) joystick.z += 1;
+			if (Gdx.input.isKeyPressed(Input.Keys.SPACE) && control) joystick.y += 5;
 			
-			Vector3 subjectiveJoystick = new Vector3();
-			if (Gdx.input.isKeyPressed(Input.Keys.SPACE) && grounded) {
-				subjectiveJoystick.y += 5;
-				//state = State.JUMPING;
-			}
+			/* Relate the vector to the cube's orientation. */
+			joystick = joystick.rotate(-azimuth, 0.0f, 1.0f, 0.0f);
 			
-			Vector3 finalJoystick = objectiveJoystick.add(subjectiveJoystick);
-			
-			System.out.println(getTranslation());
-			
-			if (rigidBody.getLinearVelocity().len2() < 500) {
-				rigidBody.applyCentralImpulse(finalJoystick.rotate(-azimuth, 0.0f, 1.0f, 0.0f));
-			} else {
-				System.out.println("Too fast!");
+			/* Limit the joystick. */
+			if (rigidBody.getLinearVelocity().len2() < linearVelocityLimit) {
+				/* TODO: scale to meet the limit. */
+				rigidBody.applyCentralImpulse(joystick);
 			}
 		}
 	}
@@ -140,10 +145,7 @@ public class Player extends ModelInstance implements RenderableProvider, Updatab
 	 */
 	@Override
 	public void update() {
-		//transform.set(rigidBody.getCenterOfMassTransform());
-		//System.out.println("Started update");
 		input();
-		//System.out.println("Finished update");
 	}
 	
 	/**
