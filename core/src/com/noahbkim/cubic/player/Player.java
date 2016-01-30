@@ -5,6 +5,7 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.RenderableProvider;
+import com.badlogic.gdx.math.Matrix3;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
@@ -105,8 +106,8 @@ public class Player extends ModelInstance implements RenderableProvider, Updatab
 			
 			Quaternion bodyRot = new Quaternion();
 			rigidBody.getCenterOfMassTransform().getRotation(bodyRot);
-			azimuth = bodyRot.getAngleAround(Vector3.Y);
-			//System.out.println(azimuth);
+			azimuth = -bodyRot.getYaw();
+			System.out.println(azimuth);
 		} 
 		
 		if (movementEnabled) {
@@ -122,8 +123,12 @@ public class Player extends ModelInstance implements RenderableProvider, Updatab
 				//state = State.JUMPING;
 			}
 			
+			Vector3 finalJoystick = objectiveJoystick.add(subjectiveJoystick);
+			
+			System.out.println(getTranslation());
+			
 			if (rigidBody.getLinearVelocity().len2() < 500) {
-				rigidBody.applyCentralImpulse(objectiveJoystick.add(subjectiveJoystick));
+				rigidBody.applyCentralImpulse(finalJoystick.rotate(-azimuth, 0.0f, 1.0f, 0.0f));
 			} else {
 				System.out.println("Too fast!");
 			}
