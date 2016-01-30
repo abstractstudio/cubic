@@ -169,9 +169,11 @@ public class Cubic extends ApplicationAdapter {
         if (Gdx.input.isButtonPressed(Input.Buttons.RIGHT) && camera.isFollowingTarget()) {
         	System.out.println("Now using orbit camera");
         	camera.followTarget(false);
+        	player.rotationEnabled = false;
         } else if (!Gdx.input.isButtonPressed(Input.Buttons.RIGHT) && !camera.isFollowingTarget()) {
         	System.out.println("Now using player camera");
         	camera.followTarget(true);
+        	player.rotationEnabled = true;
         }
 
         /* Render. */

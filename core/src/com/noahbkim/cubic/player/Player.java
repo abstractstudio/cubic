@@ -6,14 +6,11 @@ import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.RenderableProvider;
 import com.badlogic.gdx.math.Matrix4;
+import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.bullet.collision.Collision;
 import com.badlogic.gdx.physics.bullet.collision.btBoxShape;
 import com.badlogic.gdx.physics.bullet.collision.btCollisionShape;
-import com.badlogic.gdx.physics.bullet.collision.btConvexShape;
-import com.badlogic.gdx.physics.bullet.collision.btGhostPairCallback;
-import com.badlogic.gdx.physics.bullet.collision.btPairCachingGhostObject;
-import com.badlogic.gdx.physics.bullet.dynamics.btKinematicCharacterController;
 import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody;
 import com.badlogic.gdx.utils.Disposable;
 import com.noahbkim.cubic.Cubic;
@@ -94,10 +91,22 @@ public class Player extends ModelInstance implements RenderableProvider, Updatab
 		if (rotationEnabled) {
 			float rotation = Gdx.input.getDeltaX() * Cubic.defaults.mouseSensitivity;
 			float mouseAcceleration = rotation - lastRotation;
-			Vector3 r = new Vector3(1, 0, 0);
-			Vector3 f = (new Vector3(0, 0, 1)).scl(mouseAcceleration * 0.01f);
-			rigidBody.applyTorqueImpulse(r.crs(f));
 			
+			final float terminalAngularVel = 4.0f;
+			
+			if (rigidBody.getAngularVelocity().len2() < terminalAngularVel) {
+				final float accelFactor = 0.02f;
+				Vector3 r = new Vector3(1, 0, 0);
+				Vector3 f = (new Vector3(0, 0, 1)).scl(mouseAcceleration * accelFactor);
+				rigidBody.applyTorqueImpulse(r.crs(f));
+			} else {
+				System.out.println(rigidBody.getAngularVelocity().len2());
+			}
+			
+			Quaternion bodyRot = new Quaternion();
+			rigidBody.getCenterOfMassTransform().getRotation(bodyRot);
+			azimuth = bodyRot.getAngleAround(Vector3.Y);
+			//System.out.println(azimuth);
 		} 
 		
 		if (movementEnabled) {
@@ -115,11 +124,6 @@ public class Player extends ModelInstance implements RenderableProvider, Updatab
 			
 			if (rigidBody.getLinearVelocity().len2() < 500) {
 				rigidBody.applyCentralImpulse(objectiveJoystick.add(subjectiveJoystick));
-				System.out.println(rigidBody.isActive());
-				System.out.println("Applying " + objectiveJoystick.add(subjectiveJoystick));
-				System.out.println("Cube pos " + getTranslation());
-				System.out.println("Rigidbody " + rigidBody.getCenterOfMassPosition());
-				System.out.println();
 			} else {
 				System.out.println("Too fast!");
 			}
