@@ -5,11 +5,17 @@ import java.util.ArrayList;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.assets.loaders.TextureLoader.TextureParameter;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.Texture.TextureFilter;
+import com.badlogic.gdx.graphics.Texture.TextureWrap;
 import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
+import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
@@ -18,6 +24,7 @@ import com.badlogic.gdx.physics.bullet.collision.btBoxShape;
 import com.badlogic.gdx.physics.bullet.collision.btCollisionObject;
 import com.badlogic.gdx.physics.bullet.collision.btCollisionShape;
 import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody;
+import com.badlogic.gdx.graphics.g3d.Material;
 import com.noahbkim.cubic.network.Connection;
 import com.noahbkim.cubic.network.Server;
 import com.noahbkim.cubic.network.tcp.TCPConnection;
@@ -55,6 +62,7 @@ public class Cubic extends ApplicationAdapter {
 	private ModelBatch batch;
 	private Environment environment;
 	private PlayerCamera camera;
+	private AssetManager manager;
 	
 	/** Game objects. */
 	private Player player;
@@ -89,6 +97,7 @@ public class Cubic extends ApplicationAdapter {
         environment = new Environment();
         environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.4f, 0.4f, 0.4f, 1f));
         environment.add(new DirectionalLight().set(0.8f, 0.8f, 0.8f, 2f, -1f, 2f));
+        manager = new AssetManager();
         
         /* Initialize physics. */
         physicsWorld = new PhysicsWorld(5, 1.0f/60.0f);
@@ -108,14 +117,28 @@ public class Cubic extends ApplicationAdapter {
         camera = new PlayerCamera(player);
         
         /* Create another player for reference. */
-        Player reference = Player.spawn(physicsWorld);
-        reference.movementEnabled = false;
-        reference.rotationEnabled = false;
-        reference.transform.translate(15f, 0, 0);
-        reference.transform.val[Matrix4.M13] += reference.dimensions.y / 2;
+        Player reference1 = Player.spawn(physicsWorld);
+        reference1.movementEnabled = false;
+        reference1.rotationEnabled = false;
+        reference1.transform.translate(15f, 0, 0);
+        reference1.transform.val[Matrix4.M13] += reference1.dimensions.y / 2;
+        
+        Player reference2 = Player.spawn(physicsWorld);
+        reference2.movementEnabled = false;
+        reference2.rotationEnabled = false;
+        reference2.transform.translate(0f, 0, 15f);
+        reference2.transform.val[Matrix4.M13] += reference2.dimensions.y / 2;
         
         /* Create a floor. */
         ModelInstance floor = new ModelInstance(Models.box(new Vector3(100, 1, 100), Models.defaults.material2, Models.defaults.attributes));
+        manager.load("floor.png", Texture.class);
+        manager.finishLoading();
+        Texture texture = manager.get("floor.png");
+        texture.setWrap(TextureWrap.Repeat, TextureWrap.Repeat);
+        TextureAttribute textureAttribute = new TextureAttribute(TextureAttribute.Diffuse, texture);
+        Material material = floor.materials.get(0);
+        material.set(textureAttribute);
+        
         floor.transform.val[Matrix4.M13] -= 0.5;
         groundRigidBody.setWorldTransform(floor.transform);
         groundRigidBody.setFriction(1.0f);
@@ -123,7 +146,8 @@ public class Cubic extends ApplicationAdapter {
         /* Create the reference lists. */
         players = new ArrayList<Player>();
         players.add(player);
-        players.add(reference);
+        players.add(reference1);
+        players.add(reference2);
         updatables = new ArrayList<Updatable>();
         updatables.addAll(players);
         updatables.add(camera);

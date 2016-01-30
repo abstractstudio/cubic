@@ -1,2 +1,0 @@
-mouseSensitivity: int = 0.1 
-fieldOfView: float = 67

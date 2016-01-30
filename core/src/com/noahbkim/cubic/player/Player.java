@@ -81,7 +81,7 @@ public class Player extends ModelInstance implements RenderableProvider, Updatab
 		rigidBody = new btRigidBody(constructionInfo);
 		rigidBody.setActivationState(Collision.DISABLE_DEACTIVATION);
 		rigidBody.activate(true);
-		rigidBody.setFriction(0.5f);
+		rigidBody.setFriction(0.8f);
 		
 		/* Constants. */
 		angularVelocityLimit = 4.0f;
@@ -108,7 +108,7 @@ public class Player extends ModelInstance implements RenderableProvider, Updatab
 			
 			/* Apply an impulse if below terminal. */
 			if (rigidBody.getAngularVelocity().len2() < angularVelocityLimit) {
-				float magnitude = Math.signum(mouseAcceleration) * (float)Math.sqrt(Math.abs(mouseAcceleration)) * angularAccelerationFactor;
+				float magnitude = Math.signum(mouseAcceleration) * (float)Math.sqrt(Math.abs(mouseAcceleration) * angularAccelerationFactor);
 				Vector3 r = new Vector3(1, 0, 0);
 				Vector3 f = (new Vector3(0, 0, 1)).scl(magnitude);
 				/* TODO: scale to meet the limit. */
