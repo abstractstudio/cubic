@@ -25,8 +25,6 @@ public class OrbitCamera extends PerspectiveCamera implements Updatable {
 	
 	/** Player and relative location. */
 	protected Player player;
-//	public float azimuth = Defaults.startingAzimuth;
-//	public float altitude = Defaults.startingAltitude;
 	protected Quaternion rotation; 
 	protected float radius;
 	
@@ -55,7 +53,6 @@ public class OrbitCamera extends PerspectiveCamera implements Updatable {
 		if (player != null) {
 			/* Get input. */
 			input();
-			
 			/* Move and rotate the camera. */
 			Vector3 origin = player.getTranslation();
 			Vector3 translation = new Vector3();
@@ -66,7 +63,6 @@ public class OrbitCamera extends PerspectiveCamera implements Updatable {
 			up.set(Vector3.Y);
 			lookAt(origin);
 		}
-
 		/* Update the perspective camera. */
 		super.update();
 	}
@@ -84,11 +80,8 @@ public class OrbitCamera extends PerspectiveCamera implements Updatable {
 	public void input() {
 		float rotX = Gdx.input.getDeltaX() * Cubic.defaults.mouseSensitivity;
 		float rotY = Gdx.input.getDeltaY() * Cubic.defaults.mouseSensitivity;
-		if (rotation.getPitch() + rotY < -1.0f && rotation.getPitch() + rotY > -89.0f)
-			rotation.mul(new Quaternion(Vector3.X, rotY));
+		if (rotation.getPitch() + rotY < -1.0f && rotation.getPitch() + rotY > -89.0f) rotation.mul(new Quaternion(Vector3.X, rotY));
 		rotation.mulLeft(new Quaternion(Vector3.Y, rotX));
-		
-		//System.out.println(rotX + " " + rotY + " " + rotation.getYaw() + " " + rotation.getPitch() + " " + rotation.getRoll());
 	}
 	
 	/**

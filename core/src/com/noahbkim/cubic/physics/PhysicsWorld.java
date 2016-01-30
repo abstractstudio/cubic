@@ -4,7 +4,6 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.physics.bullet.collision.ContactListener;
 import com.badlogic.gdx.physics.bullet.collision.btCollisionConfiguration;
 import com.badlogic.gdx.physics.bullet.collision.btCollisionDispatcher;
-import com.badlogic.gdx.physics.bullet.collision.btCollisionShape;
 import com.badlogic.gdx.physics.bullet.collision.btDbvtBroadphase;
 import com.badlogic.gdx.physics.bullet.collision.btDefaultCollisionConfiguration;
 import com.badlogic.gdx.physics.bullet.collision.btDispatcher;
@@ -25,14 +24,19 @@ import com.noahbkim.cubic.utility.Updatable;
  */
 public class PhysicsWorld implements Updatable, Disposable {
 	
-	/** Physics world variables. */
+	/* Physics world variables. */
 	public btCollisionConfiguration collisionConfig;
 	public btDispatcher dispatcher;
 	public btDbvtBroadphase broadphase;
 	public btConstraintSolver constraintSolver;
 	public btDynamicsWorld dynamicsWorld;
 	
-	/** Physics simulation variable. */
+	/* Collision listener. */
+	class CustomContactListener extends ContactListener {
+		
+	}
+	
+	/* Physics simulation variable. */
 	private int maxSubSteps;
 	private float fixedTimeStep;	
 	

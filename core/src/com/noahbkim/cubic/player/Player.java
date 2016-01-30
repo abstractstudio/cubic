@@ -5,7 +5,6 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.RenderableProvider;
-import com.badlogic.gdx.math.Matrix3;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
@@ -52,6 +51,7 @@ public class Player extends ModelInstance implements RenderableProvider, Updatab
 	public float angularVelocityLimit;
 	public float angularAccelerationFactor;
 	public float linearVelocityLimit;
+	public float jumpForce;
 	
 	/** Physics. */
 	private Vector3 localInertia;
@@ -87,6 +87,7 @@ public class Player extends ModelInstance implements RenderableProvider, Updatab
 		angularVelocityLimit = 4.0f;
 		angularAccelerationFactor = 0.2f;
 		linearVelocityLimit = 500f;
+		jumpForce = 3f;
 		
 		/* Allow movement. */
 		rotationEnabled = true;
@@ -127,7 +128,7 @@ public class Player extends ModelInstance implements RenderableProvider, Updatab
 			if (Gdx.input.isKeyPressed(Input.Keys.S)) joystick.x -= 1;
 			if (Gdx.input.isKeyPressed(Input.Keys.A)) joystick.z -= 1;
 			if (Gdx.input.isKeyPressed(Input.Keys.D)) joystick.z += 1;
-			if (Gdx.input.isKeyPressed(Input.Keys.SPACE) && control) joystick.y += 5;
+			if (Gdx.input.isKeyPressed(Input.Keys.SPACE) && control) joystick.y += jumpForce;
 			
 			/* Relate the vector to the cube's orientation. */
 			joystick = joystick.rotate(-azimuth, 0.0f, 1.0f, 0.0f);

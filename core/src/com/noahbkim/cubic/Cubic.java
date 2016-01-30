@@ -82,7 +82,7 @@ public class Cubic extends ApplicationAdapter {
 		/* Load the settings. */
 		settings = new Settings("cubic.settings");
 
-		testNetwork();
+		//testNetwork();
 		
 		/* Set up the rendering equipment. */
 		batch = new ModelBatch();

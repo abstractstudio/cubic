@@ -1,12 +1,10 @@
 package com.noahbkim.cubic.player;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
 import com.noahbkim.cubic.Cubic;
-import com.noahbkim.cubic.player.OrbitCamera.Defaults;
 import com.noahbkim.cubic.utility.Updatable;
 
 /**
@@ -55,8 +53,7 @@ public class PlayerCamera extends OrbitCamera implements Updatable {
 	public void input() {
 		if (followPlayer) {
 			float rotY = Gdx.input.getDeltaY() * Cubic.defaults.mouseSensitivity;
-			if (altitude + rotY < -1.0f && altitude + rotY > -89.0f)
-				altitude += rotY;
+			if (altitude + rotY < -1.0f && altitude + rotY > -89.0f) altitude += rotY;
 		} else {
 			super.input();
 		}
@@ -68,10 +65,7 @@ public class PlayerCamera extends OrbitCamera implements Updatable {
 	
 	public void followTarget(boolean follow) {
 		followPlayer = follow;
-		if (follow) {
-			altitude = rotation.getPitch();
-		} else {
-			rotation = (new Quaternion(Vector3.X, altitude)).mulLeft(new Quaternion(Vector3.Y, player.azimuth)); 
-		}
+		if (follow) altitude = rotation.getPitch();
+		else rotation = (new Quaternion(Vector3.X, altitude)).mulLeft(new Quaternion(Vector3.Y, player.azimuth)); 
 	}
 }
