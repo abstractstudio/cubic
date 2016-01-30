@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.RenderableProvider;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.physics.bullet.collision.Collision;
 import com.badlogic.gdx.physics.bullet.collision.btBoxShape;
 import com.badlogic.gdx.physics.bullet.collision.btCollisionShape;
 import com.badlogic.gdx.physics.bullet.collision.btConvexShape;
@@ -75,6 +76,7 @@ public class Player extends ModelInstance implements RenderableProvider, Updatab
 		collisionShape.calculateLocalInertia(mass, localInertia);
 		constructionInfo = new btRigidBody.btRigidBodyConstructionInfo(mass, motionState, collisionShape, localInertia);
 		rigidBody = new btRigidBody(constructionInfo);
+		rigidBody.setActivationState(Collision.DISABLE_DEACTIVATION);
 		rigidBody.activate(true);
 		rigidBody.setFriction(0.5f);
 		
@@ -112,6 +114,7 @@ public class Player extends ModelInstance implements RenderableProvider, Updatab
 			
 			if (rigidBody.getLinearVelocity().len2() < 500) {
 				rigidBody.applyCentralImpulse(objectiveJoystick.add(subjectiveJoystick));
+				System.out.println(rigidBody.isActive());
 				System.out.println("Applying " + objectiveJoystick.add(subjectiveJoystick));
 				System.out.println("Cube pos " + getTranslation());
 				System.out.println("Rigidbody " + rigidBody.getCenterOfMassPosition());

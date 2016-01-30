@@ -134,7 +134,6 @@ public class Cubic extends ApplicationAdapter {
         /* Put the cursor away. */
         Gdx.input.setCursorPosition(Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2);
         Gdx.input.setCursorCatched(true);
-       
         
         /* Add the players to the world. */
         for (Player p : players) {
@@ -185,7 +184,7 @@ public class Cubic extends ApplicationAdapter {
 	 * Dispose of the game.
 	 */
 	@Override
-	public void dispose() {
+	public void dispose() {		
 		/* Dispose of instances. */
 		for (Player player : players) player.dispose();
 		instances.clear();
