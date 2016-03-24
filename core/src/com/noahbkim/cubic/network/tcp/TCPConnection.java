@@ -22,6 +22,10 @@ public class TCPConnection implements Connection {
 	private BufferedReader input;
 	private OutputStream output;
 	
+	/* Send receive timing. */
+	private long sendTime;
+	private long receiveTime;
+	
 	/**
 	 * Create a new connection to an address.
 	 * @param ip the IP address of the server.
@@ -66,17 +70,40 @@ public class TCPConnection implements Connection {
 	}
 	
 	/**
+	 * Handle a received message.
+	 * @param message the message received by the connection.
+	 */
+	public void handle(String message) {
+		if (message.equals("PING")) {
+			receiveTime = System.currentTimeMillis();
+			log("ping time: " + (receiveTime - sendTime) + " ms");
+		}
+	}
+	
+	/**
 	 * Run the connection.
 	 */
 	public void run() {
 		while (alive) {
 			String message = receive();
+			handle(message);
 			log("received \"" + message + "\"");
 		}
 	}
 	
+	/**
+	 * Stop the connection.
+	 */
 	public void stop() {
 		alive = false;
+	}
+	
+	/**
+	 * Ping the connection
+	 */
+	public void ping() {
+		sendTime = System.currentTimeMillis();
+		send("PING");
 	}
 	
 	public void log(String message) {

@@ -255,7 +255,7 @@ public class Cubic extends ApplicationAdapter {
 		Connection c = new TCPConnection("127.0.0.1", (Integer)settings.get("port"));
 		Thread t = new Thread(c);
 		t.start();
-		c.send("Hello, world!");
+		c.ping();
 	}
 
 }
