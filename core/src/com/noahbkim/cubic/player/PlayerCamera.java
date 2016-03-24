@@ -36,12 +36,12 @@ public class PlayerCamera extends OrbitCamera implements Updatable {
 			input();
 			
 			if (justFollowedPlayer) {
-				azimuth = MathUtils.lerpAngleDeg(azimuth, player.azimuth, 0.1f);
-				if (Math.abs(azimuth - player.azimuth) < 1e-2) justFollowedPlayer = false;
+				azimuth = MathUtils.lerpAngleDeg(azimuth, player.azimuth, 0.25f);
+				if (Math.abs(azimuth - player.azimuth) < 1) justFollowedPlayer = false;
 			} else {
 				azimuth = player.azimuth;
 			}
-			System.out.println(justFollowedPlayer + " " + azimuth + " " + player.azimuth);
+			//System.out.println(justFollowedPlayer + " " + azimuth + " " + player.azimuth);
 			
 			/* Move and rotate the camera. */
 			Vector3 origin = player.getTranslation();

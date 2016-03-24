@@ -10,6 +10,7 @@ import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.bullet.collision.Collision;
 import com.badlogic.gdx.physics.bullet.collision.btBoxShape;
+import com.badlogic.gdx.physics.bullet.collision.btCollisionObject;
 import com.badlogic.gdx.physics.bullet.collision.btCollisionShape;
 import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody;
 import com.badlogic.gdx.utils.Disposable;
@@ -81,13 +82,14 @@ public class Player extends ModelInstance implements RenderableProvider, Updatab
 		rigidBody = new btRigidBody(constructionInfo);
 		rigidBody.setActivationState(Collision.DISABLE_DEACTIVATION);
 		rigidBody.activate(true);
+		rigidBody.setCollisionFlags(rigidBody.getCollisionFlags() | btCollisionObject.CollisionFlags.CF_CUSTOM_MATERIAL_CALLBACK);
 		rigidBody.setFriction(0.6f);
 		
 		/* Constants. */
 		angularVelocityLimit = 4.0f;
 		angularAccelerationFactor = 0.2f;
 		linearVelocityLimit = 500f;
-		jumpForce = 3f;
+		jumpForce = 5f;
 		
 		/* Allow movement. */
 		rotationEnabled = true;
@@ -135,7 +137,11 @@ public class Player extends ModelInstance implements RenderableProvider, Updatab
 			if (Gdx.input.isKeyPressed(Input.Keys.S)) joystick.x -= 1;
 			if (Gdx.input.isKeyPressed(Input.Keys.A)) joystick.z -= 1;
 			if (Gdx.input.isKeyPressed(Input.Keys.D)) joystick.z += 1;
-			if (Gdx.input.isKeyPressed(Input.Keys.SPACE) && control) joystick.y += jumpForce;
+			if (Gdx.input.isKeyPressed(Input.Keys.R)) rigidBody.applyTorqueImpulse(new Vector3(1, 1, 1));
+			if (Gdx.input.isKeyPressed(Input.Keys.SPACE) && control) {
+				joystick.y += jumpForce;
+				control = false;
+			}
 			
 			/* Relate the vector to the cube's orientation. */
 			joystick = joystick.rotate(-azimuth, 0.0f, 1.0f, 0.0f);
@@ -154,6 +160,7 @@ public class Player extends ModelInstance implements RenderableProvider, Updatab
 	@Override
 	public void update() {
 		input();
+		
 	}
 	
 	/**

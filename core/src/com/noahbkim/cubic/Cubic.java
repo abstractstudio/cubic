@@ -64,14 +64,15 @@ public class Cubic extends ApplicationAdapter {
 	
 	/** Game objects. */
 	private Player player;
-	private ArrayList<Player> players;
-	private ArrayList<Updatable> updatables;
-	private ArrayList<ModelInstance> instances;
+	public ArrayList<Player> players;
+	public ArrayList<Updatable> updatables;
+	public ArrayList<ModelInstance> instances;
 	
 	/** Physics World. */
 	private PhysicsWorld physicsWorld;
 	
 	/** Physics objects for the ground. */
+	public static int GROUND_ID = 6969;
 	private btCollisionShape groundShape;
 	private btRigidBody.btRigidBodyConstructionInfo groundRigidBodyInfo;
 	private btRigidBody groundRigidBody;
@@ -98,13 +99,14 @@ public class Cubic extends ApplicationAdapter {
         manager = new AssetManager();
         
         /* Initialize physics. */
-        physicsWorld = new PhysicsWorld(5, 1.0f/60.0f);
+        physicsWorld = new PhysicsWorld(this, 5, 1.0f/60.0f);
         
         /* Add the ground to the world. */
         groundShape = new btBoxShape(new Vector3(50, 0.5f, 50));
         groundRigidBodyInfo = new btRigidBody.btRigidBodyConstructionInfo(0.0f, null, groundShape, Vector3.Zero);
         groundRigidBody = new btRigidBody(groundRigidBodyInfo);
         groundRigidBody.setCollisionShape(groundShape);
+        groundRigidBody.setUserValue(GROUND_ID);
         physicsWorld.addRigidBody(groundRigidBody);
         
         /* Set up the player. */
@@ -158,8 +160,9 @@ public class Cubic extends ApplicationAdapter {
         Gdx.input.setCursorCatched(true);
         
         /* Add the players to the world. */
-        for (Player p : players) {
-        	p.rigidBody.setCollisionFlags(p.rigidBody.getCollisionFlags() | btCollisionObject.CollisionFlags.CF_CUSTOM_MATERIAL_CALLBACK);
+        for (int i = 0; i < players.size(); i++) {
+        	Player p = players.get(i);
+        	p.rigidBody.setUserValue(i);
         	physicsWorld.addRigidBody(p.rigidBody);
         }
         
@@ -188,11 +191,11 @@ public class Cubic extends ApplicationAdapter {
         	if (state == State.PLAYING) pause();
         	else if (state == State.PAUSED) resume();
         }
-        if (Gdx.input.isButtonPressed(Input.Buttons.RIGHT) && camera.isFollowingTarget()) {
+        if (!player.control && camera.isFollowingTarget()) {
         	System.out.println("Now using orbit camera");
         	camera.followTarget(false);
         	player.rotationEnabled = false;
-        } else if (!Gdx.input.isButtonPressed(Input.Buttons.RIGHT) && !camera.isFollowingTarget()) {
+        } else if (player.control && !camera.isFollowingTarget()) {
         	System.out.println("Now using player camera");
         	camera.followTarget(true);
         	player.rotationEnabled = true;
