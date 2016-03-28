@@ -38,7 +38,6 @@ public class Player extends ModelInstance implements RenderableProvider, Updatab
 	
 	/** Model. */
 	public PhysicsWorld world;
-	public Model model;
 	public Vector3 dimensions;
 	public float mass;
 
@@ -53,6 +52,8 @@ public class Player extends ModelInstance implements RenderableProvider, Updatab
 	public float angularAccelerationFactor;
 	public float linearVelocityLimit;
 	public float jumpForce;
+	
+	private Vector3 up;
 	
 	/** Physics. */
 	private Vector3 localInertia;
@@ -69,7 +70,6 @@ public class Player extends ModelInstance implements RenderableProvider, Updatab
 		/* Create the model. */
 		super(model);
 		this.world = world;
-		this.model = model;
 		this.dimensions = dimensions;
 		this.mass = mass;
 		
@@ -95,6 +95,7 @@ public class Player extends ModelInstance implements RenderableProvider, Updatab
 		rotationEnabled = true;
 		movementEnabled = true;
 		lastRotation = 0;
+		up = new Vector3(0.0f, 1.0f, 0.0f);
 		
 		control = true;
 	}
@@ -110,19 +111,19 @@ public class Player extends ModelInstance implements RenderableProvider, Updatab
 			
 			Vector3 current = rigidBody.getAngularVelocity();
 			if (control) {
-				Vector3 adjusted = new Vector3(0, 1, 0).scl(-rotation);
+				Vector3 adjusted = up.cpy().scl(-rotation);
 				current.y = adjusted.y;
 				rigidBody.setAngularVelocity(current);	
 			}			
 			
-			/* Apply an impulse if below terminal. *//*
-			if (rigidBody.getAngularVelocity().len2() < angularVelocityLimit) {
-				float magnitude = Math.signum(mouseAcceleration) * (float)Math.sqrt(Math.abs(mouseAcceleration) * angularAccelerationFactor);
-				Vector3 r = new Vector3(1, 0, 0);
-				Vector3 f = (new Vector3(0, 0, 1)).scl(magnitude);
-				/* TODO: scale to meet the limit. *//*
-				rigidBody.applyTorqueImpulse(r.crs(f));
-			} */
+//			/* Apply an impulse if below terminal. */
+//			if (rigidBody.getAngularVelocity().len2() < angularVelocityLimit) {
+//				float magnitude = Math.signum(mouseAcceleration) * (float)Math.sqrt(Math.abs(mouseAcceleration) * angularAccelerationFactor);
+//				Vector3 r = new Vector3(1, 0, 0);
+//				Vector3 f = (new Vector3(0, 0, 1)).scl(magnitude);
+//				/* TODO: scale to meet the limit. *//*
+//				rigidBody.applyTorqueImpulse(r.crs(f));
+//			}
 			
 			/* Get the azimuth for the camera. */
 			Quaternion bodyRot = new Quaternion();
@@ -144,7 +145,7 @@ public class Player extends ModelInstance implements RenderableProvider, Updatab
 			}
 			
 			/* Relate the vector to the cube's orientation. */
-			joystick = joystick.rotate(-azimuth, 0.0f, 1.0f, 0.0f);
+			joystick = joystick.rotate(up, -azimuth);
 			
 			/* Limit the joystick. */
 			if (rigidBody.getLinearVelocity().len2() < linearVelocityLimit) {
@@ -160,7 +161,6 @@ public class Player extends ModelInstance implements RenderableProvider, Updatab
 	@Override
 	public void update() {
 		input();
-		
 	}
 	
 	/**

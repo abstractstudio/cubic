@@ -1,7 +1,7 @@
 package com.noahbkim.cubic.physics;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.physics.bullet.collision.ContactListener;
 import com.badlogic.gdx.physics.bullet.collision.btCollisionConfiguration;
 import com.badlogic.gdx.physics.bullet.collision.btCollisionDispatcher;
@@ -35,19 +35,7 @@ public class PhysicsWorld implements Updatable, Disposable {
 	public btConstraintSolver constraintSolver;
 	public btDynamicsWorld dynamicsWorld;
 	
-	public ContactListener contactListener;
-	
-	/* Collision listener. */
-	class CustomContactListener extends ContactListener {
-		public boolean onContactAdded(btManifoldPoint cp, int userValue0, int partId0, int index0, int userValue1, int pardId1, int index1) {
-			if (userValue0 == Cubic.GROUND_ID && userValue1 < cubicGame.players.size()) {
-				cubicGame.players.get(userValue1).control = true;
-			} else if (userValue1 == Cubic.GROUND_ID && userValue0 < cubicGame.players.size()) {
-				cubicGame.players.get(userValue0).control = true;
-			}
-			return true;
-		}
-	}
+	public CustomContactListener contactListener;
 	
 	/* Physics simulation variable. */
 	private int maxSubSteps;
@@ -71,6 +59,7 @@ public class PhysicsWorld implements Updatable, Disposable {
         dynamicsWorld.setGravity(defaults.gravity);
         
         contactListener = new CustomContactListener();
+        contactListener.setCubicGame(cGame);
 	}
 	
 	/**
@@ -79,6 +68,16 @@ public class PhysicsWorld implements Updatable, Disposable {
 	 */
 	public void addRigidBody(btRigidBody body) {
 		dynamicsWorld.addRigidBody(body);
+	}
+	
+	/**
+	 * Adds a rigid body to the physics world with the specified group and mask.
+	 * @param body the rigid body to add.
+	 * @param group the rigid body's group
+	 * @param mask the rigid body's mask
+	 */
+	public void addRigidBody(btRigidBody body, short group, short mask) {
+		dynamicsWorld.addRigidBody(body, group, mask);
 	}
 	
 	/**
@@ -94,6 +93,7 @@ public class PhysicsWorld implements Updatable, Disposable {
 	 */
 	@Override
 	public void dispose() {
+		contactListener.dispose();
 		dynamicsWorld.dispose();
 		constraintSolver.dispose();
 		broadphase.dispose();

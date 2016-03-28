@@ -7,22 +7,15 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.Texture.TextureWrap;
 import com.badlogic.gdx.graphics.g3d.Environment;
-import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
-import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.bullet.Bullet;
-import com.badlogic.gdx.physics.bullet.collision.btBoxShape;
-import com.badlogic.gdx.physics.bullet.collision.btCollisionObject;
-import com.badlogic.gdx.physics.bullet.collision.btCollisionShape;
-import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody;
+import com.noahbkim.cubic.environment.Platform;
 import com.noahbkim.cubic.network.Connection;
 import com.noahbkim.cubic.network.Server;
 import com.noahbkim.cubic.network.tcp.TCPConnection;
@@ -71,11 +64,8 @@ public class Cubic extends ApplicationAdapter {
 	/** Physics World. */
 	private PhysicsWorld physicsWorld;
 	
-	/** Physics objects for the ground. */
-	public static int GROUND_ID = 6969;
-	private btCollisionShape groundShape;
-	private btRigidBody.btRigidBodyConstructionInfo groundRigidBodyInfo;
-	private btRigidBody groundRigidBody;
+	/** Physics objects for the ground. */ 
+	private Platform floor;
 
 	/**
 	 * Create the game.
@@ -101,14 +91,6 @@ public class Cubic extends ApplicationAdapter {
         /* Initialize physics. */
         physicsWorld = new PhysicsWorld(this, 5, 1.0f/60.0f);
         
-        /* Add the ground to the world. */
-        groundShape = new btBoxShape(new Vector3(50, 0.5f, 50));
-        groundRigidBodyInfo = new btRigidBody.btRigidBodyConstructionInfo(0.0f, null, groundShape, Vector3.Zero);
-        groundRigidBody = new btRigidBody(groundRigidBodyInfo);
-        groundRigidBody.setCollisionShape(groundShape);
-        groundRigidBody.setUserValue(GROUND_ID);
-        physicsWorld.addRigidBody(groundRigidBody);
-        
         /* Set up the player. */
         player = Player.spawn(physicsWorld);
         player.transform.val[Matrix4.M13] += player.dimensions.y / 2;
@@ -130,7 +112,9 @@ public class Cubic extends ApplicationAdapter {
         reference2.transform.val[Matrix4.M13] += reference2.dimensions.y / 2;
         
         /* Create a floor. */
-        ModelInstance floor = new ModelInstance(Models.box(new Vector3(100, 1, 100), Models.defaults.material2, Models.defaults.attributes));
+        floor = new Platform(Models.box(new Vector3(100.0f, 1.0f, 100.0f), Models.defaults.material2, Models.defaults.attributes), new Vector3(100.0f, 1.0f, 100.0f));
+        floor.transform.val[Matrix4.M13] -= 0.5;
+        floor.rigidBody.setFriction(1.0f);
 //        manager.load("floor.png", Texture.class);
 //        manager.finishLoading();
 //        Texture texture = manager.get("floor.png");
@@ -139,33 +123,33 @@ public class Cubic extends ApplicationAdapter {
 //        Material material = floor.materials.get(0);
 //        material.set(textureAttribute);
         
-        floor.transform.val[Matrix4.M13] -= 0.5;
-        groundRigidBody.setWorldTransform(floor.transform);
-        groundRigidBody.setFriction(1.0f);
 
         /* Create the reference lists. */
         players = new ArrayList<Player>();
         players.add(player);
         players.add(reference1);
         players.add(reference2);
+        
         updatables = new ArrayList<Updatable>();
         updatables.addAll(players);
         updatables.add(camera);
+        updatables.add(floor);
+        
         instances = new ArrayList<ModelInstance>();
-        instances.addAll(players);
+        for (int i = 0; i < players.size(); i++) {
+        	Player p = players.get(i);
+        	p.rigidBody.setUserValue(i);
+        	physicsWorld.addRigidBody(p.rigidBody);
+        	instances.add(p);
+        }
+        
+        floor.rigidBody.setUserValue(players.size());
+        physicsWorld.addRigidBody(floor.rigidBody);
         instances.add(floor);
         
         /* Put the cursor away. */
         Gdx.input.setCursorPosition(Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2);
         Gdx.input.setCursorCatched(true);
-        
-        /* Add the players to the world. */
-        for (int i = 0; i < players.size(); i++) {
-        	Player p = players.get(i);
-        	p.rigidBody.setUserValue(i);
-        	physicsWorld.addRigidBody(p.rigidBody);
-        }
-        
         state = State.PLAYING;
 	}
 
@@ -191,6 +175,7 @@ public class Cubic extends ApplicationAdapter {
         	if (state == State.PLAYING) pause();
         	else if (state == State.PAUSED) resume();
         }
+        
         if (!player.control && camera.isFollowingTarget()) {
         	System.out.println("Now using orbit camera");
         	camera.followTarget(false);
@@ -217,9 +202,7 @@ public class Cubic extends ApplicationAdapter {
 		instances.clear();
 		
 		/* Dispose of ground physics body. */
-		groundShape.dispose();
-		groundRigidBodyInfo.dispose();
-		groundRigidBody.dispose();
+		floor.dispose();
 		
 		/* Dispose of the physics world. */
 		physicsWorld.dispose();
